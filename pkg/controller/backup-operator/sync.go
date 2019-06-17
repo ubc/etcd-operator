@@ -21,8 +21,10 @@ import (
 	"time"
 
 	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/coreos/etcd-operator/pkg/backup/metrics"
 	"github.com/coreos/etcd-operator/pkg/util/constants"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -136,6 +138,11 @@ func (b *Backup) processItem(ctx context.Context, key string) error {
 		b.backupRunnerStore.Store(eb.ObjectMeta.UID, BackupRunner{eb.Spec, cancel})
 
 	} else if !isPeriodic {
+		metrics.BackupsAttemptedTotal.With(prometheus.Labels(prometheus.Labels{
+			"namespace": eb.ObjectMeta.Namespace,
+			"name":      eb.ObjectMeta.Name,
+		})).Inc()
+
 		// Perform backup
 		bs, err := b.handleBackup(nil, &eb.Spec, false, eb.Namespace)
 		// Report backup status
@@ -227,6 +234,11 @@ func (b *Backup) periodicRunnerFunc(ctx context.Context, t *time.Ticker, eb *api
 				break
 			}
 			if err == nil {
+				metrics.BackupsAttemptedTotal.With(prometheus.Labels{
+					"namespace": eb.ObjectMeta.Namespace,
+					"name":      eb.ObjectMeta.Name,
+				}).Inc()
+
 				// Perform backup
 				bs, err = b.handleBackup(&ctx, &latestEb.Spec, true, latestEb.Namespace)
 			}
@@ -260,6 +272,15 @@ func (b *Backup) reportBackupStatus(ctx context.Context, bs *api.BackupStatus, b
 		eb.Status.EtcdVersion = bs.EtcdVersion
 		eb.Status.LastSuccessDate = bs.LastSuccessDate
 		eb.Status.LastExecutionDate = bs.LastSuccessDate
+
+		metrics.BackupsSuccessTotal.With(prometheus.Labels{
+			"namespace": eb.ObjectMeta.Namespace,
+			"name":      eb.ObjectMeta.Name,
+		}).Inc()
+		metrics.BackupsLastSuccess.With(prometheus.Labels{
+			"namespace": eb.ObjectMeta.Namespace,
+			"name":      eb.ObjectMeta.Name,
+		}).Set(float64(time.Now().Unix()))
 	}
 	_, err := b.backupCRCli.EtcdV1beta2().EtcdBackups(eb.Namespace).Update(ctx, eb, metav1.UpdateOptions{})
 	if err != nil {
