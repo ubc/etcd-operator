@@ -103,6 +103,9 @@ func (b *Backup) processItem(key string) error {
 
 			// duration = (Create date in seconds + backup interval in seconds) - current data in seconds
 			duration = int64(eb.CreationTimestamp.Time.Add(time.Duration(eb.Spec.BackupPolicy.BackupIntervalInSecond) * time.Second).Sub(time.Now()).Seconds())
+                        if duration <= 0 {
+                                duration = eb.Spec.BackupPolicy.BackupIntervalInSecond
+                        }
 			ticker = time.NewTicker(
 				time.Duration(duration) * time.Second)
 		} else { // if lastExecution already exists
