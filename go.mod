@@ -3,8 +3,7 @@ module github.com/coreos/etcd-operator
 go 1.13
 
 require (
-	cloud.google.com/go v0.52.0 // indirect
-	cloud.google.com/go/storage v1.7.0
+	cloud.google.com/go/storage v1.9.0
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0 // indirect
 	github.com/Azure/azure-sdk-for-go v11.3.0-beta+incompatible
 	github.com/Azure/go-autorest v11.9.0+incompatible
@@ -36,8 +35,8 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/pflag v1.0.3 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
-	google.golang.org/api v0.24.0
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
+	google.golang.org/api v0.26.0
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/api v0.0.0-20190226173710-145d52631d00
 	k8s.io/apiextensions-apiserver v0.0.0-20190226180157-bd0469a053ff
