@@ -135,13 +135,22 @@ func (c *Cluster) setup() error {
 	}
 
 	if c.isSecureClient() {
-		d, err := k8sutil.GetTLSDataFromSecret(c.config.KubeCli, c.cluster.Namespace, c.cluster.Spec.TLS.Static.OperatorSecret)
-		if err != nil {
-			return err
-		}
-		c.tlsConfig, err = etcdutil.NewTLSConfig(d.CertData, d.KeyData, d.CAData)
-		if err != nil {
-			return err
+		timeoutRetry := 10 * time.Second
+		timeoutInterval := 30
+		for i := 1; ; i++ {
+			d, err := k8sutil.GetTLSDataFromSecret(c.config.KubeCli, c.cluster.Namespace, c.cluster.Spec.TLS.Static.OperatorSecret)
+			if err == nil {
+				c.tlsConfig, err = etcdutil.NewTLSConfig(d.CertData, d.KeyData, d.CAData)
+			}
+			if err != nil {
+				if i > timeoutInterval {
+					return err
+				}
+				c.logger.Warningf("TLS Setup Failed: %v (Retry %d/%d)", err, i, timeoutInterval)
+			} else {
+				break
+			}
+			time.Sleep(timeoutRetry)
 		}
 	}
 
