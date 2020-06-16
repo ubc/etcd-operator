@@ -224,18 +224,18 @@ func (r *Restore) createSeedMember(ec *api.EtcdCluster, svcAddr, namespace strin
 	backupURL := backupapi.BackupURLForRestore("http", svcAddr, clusterName, namespace)
 	ec.SetDefaults()
 	pod, err := k8sutil.NewSeedMemberPod(r.kubecli, clusterName, namespace, ms, m, ec.Spec, owner, backupURL)
-	_, err = r.kubecli.Core().Pods(ec.Namespace).Create(pod)
+	_, err = r.kubecli.CoreV1().Pods(ec.Namespace).Create(pod)
 	return err
 }
 
 func (r *Restore) deleteClusterResourcesCompletely(namespace string, clusterName string) error {
 	// Delete etcd pods
-	err := r.kubecli.Core().Pods(namespace).Delete(clusterName, metav1.NewDeleteOptions(0))
+	err := r.kubecli.CoreV1().Pods(namespace).Delete(clusterName, metav1.NewDeleteOptions(0))
 	if err != nil && !k8sutil.IsKubernetesResourceNotFoundError(err) {
 		return fmt.Errorf("failed to delete cluster pods: %v", err)
 	}
 
-	err = r.kubecli.Core().Services(namespace).Delete(clusterName, metav1.NewDeleteOptions(0))
+	err = r.kubecli.CoreV1().Services(namespace).Delete(clusterName, metav1.NewDeleteOptions(0))
 	if err != nil && !k8sutil.IsKubernetesResourceNotFoundError(err) {
 		return fmt.Errorf("failed to delete cluster services: %v", err)
 	}

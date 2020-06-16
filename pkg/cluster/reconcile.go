@@ -198,7 +198,7 @@ func (c *Cluster) removeMember(toRemove *etcdutil.Member) (err error) {
 }
 
 func (c *Cluster) removePVC(pvcName string) error {
-	err := c.config.KubeCli.Core().PersistentVolumeClaims(c.cluster.Namespace).Delete(pvcName, nil)
+	err := c.config.KubeCli.CoreV1().PersistentVolumeClaims(c.cluster.Namespace).Delete(pvcName, nil)
 	if err != nil && !k8sutil.IsKubernetesResourceNotFoundError(err) {
 		return fmt.Errorf("remove pvc (%s) failed: %v", pvcName, err)
 	}
