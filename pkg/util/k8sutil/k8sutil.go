@@ -152,9 +152,17 @@ func PodWithNodeSelector(p *v1.Pod, ns map[string]string) *v1.Pod {
 	return p
 }
 
-func CreateClientService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference) error {
+func CreateClientService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool) error {
+
+	var EtcdClientPortName string
+	if tls {
+		EtcdClientPortName = "https-client"
+	} else {
+		EtcdClientPortName = "http-client"
+	}
+
 	ports := []v1.ServicePort{{
-		Name:       "client",
+		Name:       EtcdClientPortName,
 		Port:       EtcdClientPort,
 		TargetPort: intstr.FromInt(EtcdClientPort),
 		Protocol:   v1.ProtocolTCP,
@@ -166,9 +174,17 @@ func ClientServiceName(clusterName string) string {
 	return clusterName + "-client"
 }
 
-func CreatePeerService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference) error {
+func CreatePeerService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool) error {
+
+	var EtcdClientPortName string
+	if tls {
+		EtcdClientPortName = "https-client"
+	} else {
+		EtcdClientPortName = "http-client"
+	}
+
 	ports := []v1.ServicePort{{
-		Name:       "client",
+		Name:       EtcdClientPortName,
 		Port:       EtcdClientPort,
 		TargetPort: intstr.FromInt(EtcdClientPort),
 		Protocol:   v1.ProtocolTCP,
