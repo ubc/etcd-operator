@@ -31,7 +31,7 @@ import (
 	"github.com/coreos/etcd-operator/pkg/util/probe"
 	"github.com/coreos/etcd-operator/pkg/util/retryutil"
 	"github.com/coreos/etcd-operator/version"
-	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
@@ -103,13 +103,14 @@ func main() {
 	kubecli := k8sutil.MustNewKubeClient()
 
 	http.HandleFunc(probe.HTTPReadyzEndpoint, probe.ReadyzHandler)
-	http.Handle("/metrics", prometheus.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(listenAddr, nil)
 
 	rl, err := resourcelock.New(resourcelock.EndpointsResourceLock,
 		namespace,
 		"etcd-operator",
 		kubecli.CoreV1(),
+		kubecli.CoordinationV1(),
 		resourcelock.ResourceLockConfig{
 			Identity:      id,
 			EventRecorder: createRecorder(kubecli, name, namespace),
@@ -224,6 +225,6 @@ func startChaos(ctx context.Context, kubecli kubernetes.Interface, ns string, ch
 func createRecorder(kubecli kubernetes.Interface, name, namespace string) record.EventRecorder {
 	eventBroadcaster := record.NewBroadcaster()
 	eventBroadcaster.StartLogging(logrus.Infof)
-	eventBroadcaster.StartRecordingToSink(&v1core.EventSinkImpl{Interface: v1core.New(kubecli.Core().RESTClient()).Events(namespace)})
+	eventBroadcaster.StartRecordingToSink(&v1core.EventSinkImpl{Interface: v1core.New(kubecli.CoreV1().RESTClient()).Events(namespace)})
 	return eventBroadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: name})
 }

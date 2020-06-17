@@ -130,8 +130,9 @@ func (c *FakeEtcdClusters) DeleteCollection(options *v1.DeleteOptions, listOptio
 
 // Patch applies the patch and returns the patched etcdCluster.
 func (c *FakeEtcdClusters) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1beta2.EtcdCluster, err error) {
+	// EDITED MANUALLY TO MAKE IT COMPILE https://github.com/kubernetes/cluster-registry/issues/271
 	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(etcdclustersResource, c.ns, name, data, subresources...), &v1beta2.EtcdCluster{})
+		Invokes(testing.NewPatchSubresourceAction(etcdclustersResource, c.ns, name, pt, data, subresources...), &v1beta2.EtcdCluster{})
 
 	if obj == nil {
 		return nil, err

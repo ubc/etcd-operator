@@ -100,7 +100,7 @@ func verifyAWSEnvVars() error {
 }
 
 func getEndpoints(kubeClient kubernetes.Interface, secureClient bool, namespace, clusterName string) ([]string, error) {
-	podList, err := kubeClient.Core().Pods(namespace).List(k8sutil.ClusterListOpt(clusterName))
+	podList, err := kubeClient.CoreV1().Pods(namespace).List(k8sutil.ClusterListOpt(clusterName))
 	if err != nil {
 		return nil, err
 	}
