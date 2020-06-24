@@ -7,8 +7,8 @@ require (
 	cloud.google.com/go/storage v1.5.0
 	contrib.go.opencensus.io/exporter/ocagent v0.6.0 // indirect
 	github.com/Azure/azure-sdk-for-go v43.2.0+incompatible
-	github.com/Azure/go-autorest v13.4.1+incompatible
-	github.com/Azure/go-autorest/autorest v0.10.2
+	github.com/Azure/go-autorest v14.2.0+incompatible
+	github.com/Azure/go-autorest/autorest v0.11.0
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190125095113-2b29687e15f2
 	github.com/antihax/optional v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.13.8
@@ -45,7 +45,6 @@ require (
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200427203606-3cfed13b9966 // indirect
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.15.0 // indirect
-	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6 // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/mod v0.3.0 // indirect
