@@ -25,7 +25,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func generateTLSConfig(kubecli kubernetes.Interface, clientTLSSecret, namespace string) (*tls.Config, error) {
+func generateTLSConfig(kubecli kubernetes.Interface, clientTLSSecret, namespace string, allowSelfSignedCertificates bool) (*tls.Config, error) {
 	var tlsConfig *tls.Config
 	if len(clientTLSSecret) != 0 {
 		d, err := k8sutil.GetTLSDataFromSecret(kubecli, namespace, clientTLSSecret)
@@ -35,6 +35,9 @@ func generateTLSConfig(kubecli kubernetes.Interface, clientTLSSecret, namespace 
 		tlsConfig, err = etcdutil.NewTLSConfig(d.CertData, d.KeyData, d.CAData)
 		if err != nil {
 			return nil, fmt.Errorf("failed to constructs tls config: %v", err)
+		}
+		if allowSelfSignedCertificates {
+			tlsConfig.InsecureSkipVerify = true
 		}
 	}
 	return tlsConfig, nil

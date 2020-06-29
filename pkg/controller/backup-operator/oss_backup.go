@@ -28,7 +28,7 @@ import (
 
 // handleOSS saves etcd cluster's backup to specificed OSS path.
 func handleOSS(ctx context.Context, kubecli kubernetes.Interface, s *api.OSSBackupSource, endpoints []string, clientTLSSecret,
-	namespace string, isPeriodic bool, maxBackup int) (*api.BackupStatus, error) {
+	namespace string, isPeriodic bool, maxBackup int, allowSelfSignedCertificates bool) (*api.BackupStatus, error) {
 	if s.Endpoint == "" {
 		s.Endpoint = "http://oss-cn-hangzhou.aliyuncs.com"
 	}
@@ -38,7 +38,7 @@ func handleOSS(ctx context.Context, kubecli kubernetes.Interface, s *api.OSSBack
 		return nil, err
 	}
 
-	tlsConfig, err := generateTLSConfig(kubecli, clientTLSSecret, namespace)
+	tlsConfig, err := generateTLSConfig(kubecli, clientTLSSecret, namespace, allowSelfSignedCertificates)
 	if err != nil {
 		return nil, err
 	}

@@ -29,7 +29,7 @@ import (
 
 // handleABS saves etcd cluster's backup to specificed ABS path.
 func handleABS(ctx context.Context, kubecli kubernetes.Interface, s *api.ABSBackupSource, endpoints []string, clientTLSSecret,
-	namespace string, isPeriodic bool, maxBackup int) (*api.BackupStatus, error) {
+	namespace string, isPeriodic bool, maxBackup int, allowSelfSignedCertificates bool) (*api.BackupStatus, error) {
 	// TODO: controls NewClientFromSecret with ctx. This depends on upstream kubernetes to support API calls with ctx.
 	cli, err := absfactory.NewClientFromSecret(kubecli, namespace, s.ABSSecret)
 	if err != nil {
@@ -37,7 +37,7 @@ func handleABS(ctx context.Context, kubecli kubernetes.Interface, s *api.ABSBack
 	}
 
 	var tlsConfig *tls.Config
-	if tlsConfig, err = generateTLSConfig(kubecli, clientTLSSecret, namespace); err != nil {
+	if tlsConfig, err = generateTLSConfig(kubecli, clientTLSSecret, namespace, allowSelfSignedCertificates); err != nil {
 		return nil, err
 	}
 	bm := backup.NewBackupManagerFromWriter(kubecli, writer.NewABSWriter(cli.ABS), tlsConfig, endpoints, namespace)

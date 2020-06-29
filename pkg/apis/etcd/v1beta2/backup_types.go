@@ -85,6 +85,9 @@ type BackupSpec struct {
 	//    "etcd-client.key": <pem-encoded-key>
 	//    "etcd-client-ca.crt": <pem-encoded-ca-cert>
 	ClientTLSSecret string `json:"clientTLSSecret,omitempty"`
+	// If AllowSelfSignedCertificates is true, set the InsecureSkipVerify flag
+	// for TLS connections
+	AllowSelfSignedCertificates bool `json:"allowSelfSignedCertificates"`
 }
 
 // BackupSource contains the supported backup sources.
