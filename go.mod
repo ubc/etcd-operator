@@ -13,7 +13,7 @@ require (
 	github.com/antihax/optional v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.13.8
 	github.com/coreos/bbolt v1.3.4 // indirect
-	github.com/coreos/etcd v3.3.22+incompatible
+	github.com/coreos/etcd v3.3.25+incompatible
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/envoyproxy/go-control-plane v0.9.4 // indirect
