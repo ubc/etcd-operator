@@ -11,7 +11,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.11.11
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190125095113-2b29687e15f2
 	github.com/antihax/optional v1.0.0 // indirect
-	github.com/aws/aws-sdk-go v1.35.25
+	github.com/aws/aws-sdk-go v1.36.23
 	github.com/coreos/bbolt v1.3.4 // indirect
 	github.com/coreos/etcd v3.3.25+incompatible
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
