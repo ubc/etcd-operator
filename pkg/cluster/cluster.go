@@ -364,12 +364,12 @@ func (c *Cluster) Update(cl *api.EtcdCluster) {
 }
 
 func (c *Cluster) setupServices() error {
-	err := k8sutil.CreateClientService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient())
+	err := k8sutil.CreateClientService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
 	if err != nil {
 		return err
 	}
 
-	return k8sutil.CreatePeerService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient())
+	return k8sutil.CreatePeerService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
 }
 
 func (c *Cluster) isPodPVEnabled() bool {

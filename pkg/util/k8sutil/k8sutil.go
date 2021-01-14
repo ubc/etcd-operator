@@ -152,7 +152,7 @@ func PodWithNodeSelector(p *v1.Pod, ns map[string]string) *v1.Pod {
 	return p
 }
 
-func CreateClientService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool) error {
+func CreateClientService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool, policy *api.ServicePolicy) error {
 
 	var EtcdClientPortName string
 	if tls {
@@ -167,14 +167,14 @@ func CreateClientService(kubecli kubernetes.Interface, clusterName, ns string, o
 		TargetPort: intstr.FromInt(EtcdClientPort),
 		Protocol:   v1.ProtocolTCP,
 	}}
-	return createService(kubecli, ClientServiceName(clusterName), clusterName, ns, "", ports, owner, false)
+	return createService(kubecli, ClientServiceName(clusterName), clusterName, ns, "", ports, owner, false, policy)
 }
 
 func ClientServiceName(clusterName string) string {
 	return clusterName + "-client"
 }
 
-func CreatePeerService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool) error {
+func CreatePeerService(kubecli kubernetes.Interface, clusterName, ns string, owner metav1.OwnerReference, tls bool, policy *api.ServicePolicy) error {
 
 	var EtcdClientPortName string
 	if tls {
@@ -195,11 +195,13 @@ func CreatePeerService(kubecli kubernetes.Interface, clusterName, ns string, own
 		Protocol:   v1.ProtocolTCP,
 	}}
 
-	return createService(kubecli, clusterName, clusterName, ns, v1.ClusterIPNone, ports, owner, true)
+	return createService(kubecli, clusterName, clusterName, ns, v1.ClusterIPNone, ports, owner, true, nil)
 }
 
-func createService(kubecli kubernetes.Interface, svcName, clusterName, ns, clusterIP string, ports []v1.ServicePort, owner metav1.OwnerReference, publishNotReadyAddresses bool) error {
+func createService(kubecli kubernetes.Interface, svcName, clusterName, ns, clusterIP string, ports []v1.ServicePort, owner metav1.OwnerReference, publishNotReadyAddresses bool, policy *api.ServicePolicy) error {
 	svc := newEtcdServiceManifest(svcName, clusterName, clusterIP, ports, publishNotReadyAddresses)
+
+	applyServicePolicy(svc, policy)
 	addOwnerRefToObject(svc.GetObjectMeta(), owner)
 	_, err := kubecli.CoreV1().Services(ns).Create(svc)
 	if err != nil && !apierrors.IsAlreadyExists(err) {
@@ -427,7 +429,7 @@ func newEtcdPod(kubecli kubernetes.Interface, m *etcdutil.Member, initialCluster
 					TIMEOUT_READY=%d
 					while ( ! nslookup %s )
 					do
-						# If TIMEOUT_READY is 0 we should never time out and exit 
+						# If TIMEOUT_READY is 0 we should never time out and exit
 						TIMEOUT_READY=$(( TIMEOUT_READY-1 ))
                         if [ $TIMEOUT_READY -eq 0 ];
 				        then
