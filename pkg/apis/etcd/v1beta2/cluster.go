@@ -97,6 +97,9 @@ type ClusterSpec struct {
 	// Updating Pod does not take effect on any existing etcd pods.
 	Pod *PodPolicy `json:"pod,omitempty"`
 
+	// Service defines the policy to create etcd services
+	Service *ServicePolicy `json:"service,omitempty"`
+
 	// etcd cluster TLS configuration
 	TLS *TLSPolicy `json:"TLS,omitempty"`
 }
@@ -167,6 +170,13 @@ type PodPolicy struct {
 	// The default is to not use memory as the storage medium
 	// No effect if persistent volume is used
 	Tmpfs bool `json:"tmpfs,omitempty"`
+}
+
+// ServicePolicy defines the policy to create pod for the etcd container.
+type ServicePolicy struct {
+	// Annotations specifies the annotations to attach to services the operator creates for the
+	// etcd cluster.
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 // TODO: move this to initializer
