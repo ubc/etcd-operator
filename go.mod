@@ -45,12 +45,12 @@ require (
 	k8s.io/api v0.16.10
 	k8s.io/apiextensions-apiserver v0.16.10
 	k8s.io/apimachinery v0.16.10
-	k8s.io/client-go v0.20.2
+	k8s.io/client-go/v12/v12 v12.0.0
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1
 
-replace k8s.io/client-go => k8s.io/client-go v0.16.10
+replace k8s.io/client-go/v12 => /v12k8s.io/client-go v12.0.0
 
 replace github.com/coreos/bbolt => github.com/coreos/bbolt v1.3.1-coreos.6
