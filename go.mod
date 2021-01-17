@@ -8,7 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.17
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
-	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190125095113-2b29687e15f2
+	github.com/aliyun/aliyun-oss-go-sdk/v2/v2 v2.1.6
 	github.com/aws/aws-sdk-go v1.36.25
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/coreos/bbolt v1.3.4 // indirect
