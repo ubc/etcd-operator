@@ -178,6 +178,10 @@ type ServicePolicy struct {
 	// etcd cluster.
 	Annotations map[string]string `json:"annotations,omitempty"`
 
+	// Overrides the name of the service created
+	// +optional
+	Name string `json:"name,omitempty"`
+
 	// Overrides the routing service traffic to pods with label keys and
 	// values matching this selector.
 	// More info: https://kubernetes.io/docs/concepts/services-networking/service/
