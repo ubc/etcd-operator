@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/bigquery v1.4.0 // indirect
 	cloud.google.com/go/storage v1.5.0
 	github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.16
+	github.com/Azure/go-autorest/autorest v0.11.17
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v0.0.0-20190125095113-2b29687e15f2
 	github.com/aws/aws-sdk-go v1.36.25
