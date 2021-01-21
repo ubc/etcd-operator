@@ -15,6 +15,7 @@
 package s3factory
 
 import (
+	"context"
 	"testing"
 
 	"k8s.io/api/core/v1"
@@ -29,7 +30,7 @@ func TestSetupAWSConfig(t *testing.T) {
 	client := fake.NewSimpleClientset(sec)
 
 	e := "example.com"
-	opts, err := setupAWSConfig(client, "", "", e, "", false)
+	opts, err := setupAWSConfig(context.Background(), client, "", "", e, "", false)
 	if err != nil {
 		t.Error(err)
 	}

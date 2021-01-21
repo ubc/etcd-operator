@@ -39,7 +39,7 @@ func init() {
 func (c *Controller) Start() error {
 	// TODO: get rid of this init code. CRD and storage class will be managed outside of operator.
 	for {
-		err := c.initResource()
+		err := c.initResource(context.TODO())
 		if err == nil {
 			break
 		}
@@ -78,9 +78,9 @@ func (c *Controller) run() {
 	informer.Run(ctx.Done())
 }
 
-func (c *Controller) initResource() error {
+func (c *Controller) initResource(ctx context.Context) error {
 	if c.Config.CreateCRD {
-		err := c.initCRD()
+		err := c.initCRD(ctx)
 		if err != nil {
 			return fmt.Errorf("fail to init CRD: %v", err)
 		}

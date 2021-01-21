@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -103,24 +104,24 @@ func New(config Config, cl *api.EtcdCluster) *Cluster {
 	}
 
 	go func() {
-		if err := c.setup(); err != nil {
+		if err := c.setup(context.TODO()); err != nil {
 			c.logger.Errorf("cluster failed to setup: %v", err)
 			if c.status.Phase != api.ClusterPhaseFailed {
 				c.status.SetReason(err.Error())
 				c.status.SetPhase(api.ClusterPhaseFailed)
-				if err := c.updateCRStatus(); err != nil {
+				if err := c.updateCRStatus(context.TODO()); err != nil {
 					c.logger.Errorf("failed to update cluster phase (%v): %v", api.ClusterPhaseFailed, err)
 				}
 			}
 			return
 		}
-		c.run()
+		c.run(context.TODO())
 	}()
 
 	return c
 }
 
-func (c *Cluster) setup() error {
+func (c *Cluster) setup(ctx context.Context) error {
 	var shouldCreateCluster bool
 	switch c.status.Phase {
 	case api.ClusterPhaseNone:
@@ -138,7 +139,7 @@ func (c *Cluster) setup() error {
 		timeoutRetry := 10 * time.Second
 		timeoutInterval := 30
 		for i := 1; ; i++ {
-			d, err := k8sutil.GetTLSDataFromSecret(c.config.KubeCli, c.cluster.Namespace, c.cluster.Spec.TLS.Static.OperatorSecret)
+			d, err := k8sutil.GetTLSDataFromSecret(ctx, c.config.KubeCli, c.cluster.Namespace, c.cluster.Spec.TLS.Static.OperatorSecret)
 			if err == nil {
 				c.tlsConfig, err = etcdutil.NewTLSConfig(d.CertData, d.KeyData, d.CAData)
 			}
@@ -155,26 +156,26 @@ func (c *Cluster) setup() error {
 	}
 
 	if shouldCreateCluster {
-		return c.create()
+		return c.create(ctx)
 	}
 	return nil
 }
 
-func (c *Cluster) create() error {
+func (c *Cluster) create(ctx context.Context) error {
 	c.status.SetPhase(api.ClusterPhaseCreating)
 
-	if err := c.updateCRStatus(); err != nil {
+	if err := c.updateCRStatus(ctx); err != nil {
 		return fmt.Errorf("cluster create: failed to update cluster phase (%v): %v", api.ClusterPhaseCreating, err)
 	}
 	c.logClusterCreation()
 
-	return c.prepareSeedMember()
+	return c.prepareSeedMember(ctx)
 }
 
-func (c *Cluster) prepareSeedMember() error {
+func (c *Cluster) prepareSeedMember(ctx context.Context) error {
 	c.status.SetScalingUpCondition(0, c.cluster.Spec.Size)
 
-	err := c.bootstrap()
+	err := c.bootstrap(ctx)
 	if err != nil {
 		return err
 	}
@@ -199,15 +200,15 @@ func (c *Cluster) send(ev *clusterEvent) {
 	}
 }
 
-func (c *Cluster) run() {
-	if err := c.setupServices(); err != nil {
+func (c *Cluster) run(ctx context.Context) {
+	if err := c.setupServices(ctx); err != nil {
 		c.logger.Errorf("fail to setup etcd services: %v", err)
 	}
 	c.status.ServiceName = k8sutil.ClientServiceName(c.cluster.Name)
 	c.status.ClientPort = k8sutil.EtcdClientPort
 
 	c.status.SetPhase(api.ClusterPhaseRunning)
-	if err := c.updateCRStatus(); err != nil {
+	if err := c.updateCRStatus(ctx); err != nil {
 		c.logger.Warningf("update initial CR status failed: %v", err)
 	}
 	c.logger.Infof("start running...")
@@ -224,7 +225,7 @@ func (c *Cluster) run() {
 				if err != nil {
 					c.logger.Errorf("handle update event failed: %v", err)
 					c.status.SetReason(err.Error())
-					c.reportFailedStatus()
+					c.reportFailedStatus(ctx)
 					return
 				}
 			default:
@@ -242,7 +243,7 @@ func (c *Cluster) run() {
 				c.status.Control()
 			}
 
-			running, pending, err := c.pollPods()
+			running, pending, err := c.pollPods(ctx)
 			if err != nil {
 				c.logger.Errorf("fail to poll pods: %v", err)
 				reconcileFailed.WithLabelValues("failed to poll pods").Inc()
@@ -269,13 +270,13 @@ func (c *Cluster) run() {
 					break
 				}
 			}
-			rerr = c.reconcile(running)
+			rerr = c.reconcile(ctx, running)
 			if rerr != nil {
 				c.logger.Errorf("failed to reconcile: %v", rerr)
 				break
 			}
 			c.updateMemberStatus(running)
-			if err := c.updateCRStatus(); err != nil {
+			if err := c.updateCRStatus(ctx); err != nil {
 				c.logger.Warningf("periodic update CR status failed: %v", err)
 			}
 
@@ -289,7 +290,7 @@ func (c *Cluster) run() {
 		if isFatalError(rerr) {
 			c.status.SetReason(rerr.Error())
 			c.logger.Errorf("cluster failed: %v", rerr)
-			c.reportFailedStatus()
+			c.reportFailedStatus(ctx)
 			return
 		}
 	}
@@ -319,7 +320,7 @@ func isSpecEqual(s1, s2 api.ClusterSpec) bool {
 	return true
 }
 
-func (c *Cluster) startSeedMember() error {
+func (c *Cluster) startSeedMember(ctx context.Context) error {
 	m := &etcdutil.Member{
 		Name:         k8sutil.UniqueMemberName(c.cluster.Name),
 		Namespace:    c.cluster.Namespace,
@@ -330,12 +331,12 @@ func (c *Cluster) startSeedMember() error {
 		m.ClusterDomain = c.cluster.Spec.Pod.ClusterDomain
 	}
 	ms := etcdutil.NewMemberSet(m)
-	if err := c.createPod(ms, m, "new"); err != nil {
+	if err := c.createPod(ctx, ms, m, "new"); err != nil {
 		return fmt.Errorf("failed to create seed member (%s): %v", m.Name, err)
 	}
 	c.members = ms
 	c.logger.Infof("cluster created with seed member (%s)", m.Name)
-	_, err := c.eventsCli.Create(k8sutil.NewMemberAddEvent(m.Name, c.cluster))
+	_, err := c.eventsCli.Create(ctx, k8sutil.NewMemberAddEvent(m.Name, c.cluster), metav1.CreateOptions{})
 	if err != nil {
 		c.logger.Errorf("failed to create new member add event: %v", err)
 	}
@@ -352,8 +353,8 @@ func (c *Cluster) isSecureClient() bool {
 }
 
 // bootstrap creates the seed etcd member for a new cluster.
-func (c *Cluster) bootstrap() error {
-	return c.startSeedMember()
+func (c *Cluster) bootstrap(ctx context.Context) error {
+	return c.startSeedMember(ctx)
 }
 
 func (c *Cluster) Update(cl *api.EtcdCluster) {
@@ -363,13 +364,13 @@ func (c *Cluster) Update(cl *api.EtcdCluster) {
 	})
 }
 
-func (c *Cluster) setupServices() error {
-	err := k8sutil.CreateClientService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
+func (c *Cluster) setupServices(ctx context.Context) error {
+	err := k8sutil.CreateClientService(ctx, c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
 	if err != nil {
 		return err
 	}
 
-	return k8sutil.CreatePeerService(c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
+	return k8sutil.CreatePeerService(ctx, c.config.KubeCli, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner(), c.isSecureClient(), c.cluster.Spec.Service)
 }
 
 func (c *Cluster) isPodPVEnabled() bool {
@@ -379,11 +380,11 @@ func (c *Cluster) isPodPVEnabled() bool {
 	return false
 }
 
-func (c *Cluster) createPod(members etcdutil.MemberSet, m *etcdutil.Member, state string) error {
-	pod, err := k8sutil.NewEtcdPod(c.config.KubeCli, m, members.PeerURLPairs(), c.cluster.Name, c.cluster.Namespace, state, uuid.New(), c.cluster.Spec, c.cluster.AsOwner())
+func (c *Cluster) createPod(ctx context.Context, members etcdutil.MemberSet, m *etcdutil.Member, state string) error {
+	pod, err := k8sutil.NewEtcdPod(ctx, c.config.KubeCli, m, members.PeerURLPairs(), c.cluster.Name, c.cluster.Namespace, state, uuid.New(), c.cluster.Spec, c.cluster.AsOwner())
 	if c.isPodPVEnabled() {
 		pvc := k8sutil.NewEtcdPodPVC(m, *c.cluster.Spec.Pod.PersistentVolumeClaimSpec, c.cluster.Name, c.cluster.Namespace, c.cluster.AsOwner())
-		_, err := c.config.KubeCli.CoreV1().PersistentVolumeClaims(c.cluster.Namespace).Create(pvc)
+		_, err := c.config.KubeCli.CoreV1().PersistentVolumeClaims(c.cluster.Namespace).Create(ctx, pvc, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create PVC for member (%s): %v", m.Name, err)
 		}
@@ -395,14 +396,14 @@ func (c *Cluster) createPod(members etcdutil.MemberSet, m *etcdutil.Member, stat
 		}
 		k8sutil.AddEtcdVolumeToPod(pod, nil, tmpfs)
 	}
-	_, err = c.config.KubeCli.CoreV1().Pods(c.cluster.Namespace).Create(pod)
+	_, err = c.config.KubeCli.CoreV1().Pods(c.cluster.Namespace).Create(ctx, pod, metav1.CreateOptions{})
 	return err
 }
 
-func (c *Cluster) removePod(name string) error {
+func (c *Cluster) removePod(ctx context.Context, name string) error {
 	ns := c.cluster.Namespace
-	opts := metav1.NewDeleteOptions(podTerminationGracePeriod)
-	err := c.config.KubeCli.CoreV1().Pods(ns).Delete(name, opts)
+	opts := *metav1.NewDeleteOptions(podTerminationGracePeriod)
+	err := c.config.KubeCli.CoreV1().Pods(ns).Delete(ctx, name, opts)
 	if err != nil {
 		if !k8sutil.IsKubernetesResourceNotFoundError(err) {
 			return err
@@ -411,8 +412,8 @@ func (c *Cluster) removePod(name string) error {
 	return nil
 }
 
-func (c *Cluster) pollPods() (running, pending []*v1.Pod, err error) {
-	podList, err := c.config.KubeCli.CoreV1().Pods(c.cluster.Namespace).List(k8sutil.ClusterListOpt(c.cluster.Name))
+func (c *Cluster) pollPods(ctx context.Context) (running, pending []*v1.Pod, err error) {
+	podList, err := c.config.KubeCli.CoreV1().Pods(c.cluster.Namespace).List(ctx, k8sutil.ClusterListOpt(c.cluster.Name))
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to list running pods: %v", err)
 	}
@@ -459,14 +460,14 @@ func (c *Cluster) updateMemberStatus(running []*v1.Pod) {
 	c.status.Members.Unready = unready
 }
 
-func (c *Cluster) updateCRStatus() error {
+func (c *Cluster) updateCRStatus(ctx context.Context) error {
 	if reflect.DeepEqual(c.cluster.Status, c.status) {
 		return nil
 	}
 
 	newCluster := c.cluster
 	newCluster.Status = c.status
-	newCluster, err := c.config.EtcdCRCli.EtcdV1beta2().EtcdClusters(c.cluster.Namespace).Update(c.cluster)
+	newCluster, err := c.config.EtcdCRCli.EtcdV1beta2().EtcdClusters(c.cluster.Namespace).Update(ctx, c.cluster, metav1.UpdateOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to update CR status: %v", err)
 	}
@@ -476,13 +477,13 @@ func (c *Cluster) updateCRStatus() error {
 	return nil
 }
 
-func (c *Cluster) reportFailedStatus() {
+func (c *Cluster) reportFailedStatus(ctx context.Context) {
 	c.logger.Info("cluster failed. Reporting failed reason...")
 
 	retryInterval := 5 * time.Second
 	f := func() (bool, error) {
 		c.status.SetPhase(api.ClusterPhaseFailed)
-		err := c.updateCRStatus()
+		err := c.updateCRStatus(ctx)
 		if err == nil || k8sutil.IsKubernetesResourceNotFoundError(err) {
 			return true, nil
 		}
@@ -493,7 +494,7 @@ func (c *Cluster) reportFailedStatus() {
 		}
 
 		cl, err := c.config.EtcdCRCli.EtcdV1beta2().EtcdClusters(c.cluster.Namespace).
-			Get(c.cluster.Name, metav1.GetOptions{})
+			Get(ctx, c.cluster.Name, metav1.GetOptions{})
 		if err != nil {
 			// Update (PUT) will return conflict even if object is deleted since we have UID set in object.
 			// Because it will check UID first and return something like:

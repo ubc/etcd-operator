@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
@@ -24,12 +25,12 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func (c *Cluster) upgradeOneMember(memberName string) error {
+func (c *Cluster) upgradeOneMember(ctx context.Context, memberName string) error {
 	c.status.SetUpgradingCondition(c.cluster.Spec.Version)
 
 	ns := c.cluster.Namespace
 
-	pod, err := c.config.KubeCli.CoreV1().Pods(ns).Get(memberName, metav1.GetOptions{})
+	pod, err := c.config.KubeCli.CoreV1().Pods(ns).Get(ctx, memberName, metav1.GetOptions{})
 	if err != nil {
 		return fmt.Errorf("fail to get pod (%s): %v", memberName, err)
 	}
@@ -44,12 +45,12 @@ func (c *Cluster) upgradeOneMember(memberName string) error {
 		return fmt.Errorf("error creating patch: %v", err)
 	}
 
-	_, err = c.config.KubeCli.CoreV1().Pods(ns).Patch(pod.GetName(), types.StrategicMergePatchType, patchdata)
+	_, err = c.config.KubeCli.CoreV1().Pods(ns).Patch(ctx, pod.GetName(), types.StrategicMergePatchType, patchdata, metav1.PatchOptions{})
 	if err != nil {
 		return fmt.Errorf("fail to update the etcd member (%s): %v", memberName, err)
 	}
 	c.logger.Infof("finished upgrading the etcd member %v", memberName)
-	_, err = c.eventsCli.Create(k8sutil.MemberUpgradedEvent(memberName, k8sutil.GetEtcdVersion(oldpod), c.cluster.Spec.Version, c.cluster))
+	_, err = c.eventsCli.Create(ctx, k8sutil.MemberUpgradedEvent(memberName, k8sutil.GetEtcdVersion(oldpod), c.cluster.Spec.Version, c.cluster), metav1.CreateOptions{})
 	if err != nil {
 		c.logger.Errorf("failed to create member upgraded event: %v", err)
 	}

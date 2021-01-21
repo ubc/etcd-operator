@@ -15,6 +15,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
 
 	"github.com/pkg/errors"
@@ -26,8 +28,8 @@ import (
 
 // createServiceForMyself gets restore-operator pod labels, strip away "pod-template-hash",
 // and then use it as selector to create a service for current restore-operator.
-func createServiceForMyself(kubecli kubernetes.Interface, name, namespace string) error {
-	pod, err := kubecli.CoreV1().Pods(namespace).Get(name, metav1.GetOptions{})
+func createServiceForMyself(ctx context.Context, kubecli kubernetes.Interface, name, namespace string) error {
+	pod, err := kubecli.CoreV1().Pods(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -48,7 +50,7 @@ func createServiceForMyself(kubecli kubernetes.Interface, name, namespace string
 			Selector: pod.Labels,
 		},
 	}
-	_, err = kubecli.CoreV1().Services(namespace).Create(svc)
+	_, err = kubecli.CoreV1().Services(namespace).Create(ctx, svc, metav1.CreateOptions{})
 	if err != nil && !k8sutil.IsKubernetesResourceAlreadyExistError(err) {
 		return errors.WithStack(err)
 	}

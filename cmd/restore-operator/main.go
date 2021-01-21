@@ -75,7 +75,7 @@ func main() {
 
 	kubecli := k8sutil.MustNewKubeClient()
 
-	err = createServiceForMyself(kubecli, name, namespace)
+	err = createServiceForMyself(context.TODO(), kubecli, name, namespace)
 	if err != nil {
 		logrus.Fatalf("create service failed: %+v", err)
 	}
