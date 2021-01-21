@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"os"
@@ -46,7 +47,7 @@ func TestTLS(t *testing.T) {
 	}
 
 	defer func() {
-		err := e2eutil.DeleteSecrets(f.KubeClient, f.Namespace, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
+		err := e2eutil.DeleteSecrets(context.Background(), f.KubeClient, f.Namespace, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -55,18 +56,18 @@ func TestTLS(t *testing.T) {
 	c := e2eutil.NewCluster("", 3)
 	c.Name = clusterName
 	e2eutil.ClusterCRWithTLS(c, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
-	c, err = e2eutil.CreateCluster(t, f.CRClient, f.Namespace, c)
+	c, err = e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, c); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, c); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	_, err = e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, c)
+	_, err = e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, c)
 	if err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}

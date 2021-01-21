@@ -15,6 +15,7 @@
 package upgradetest
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -32,39 +33,39 @@ func newOperatorName() string {
 
 func TestResize(t *testing.T) {
 	name := newOperatorName()
-	err := testF.CreateOperator(name)
+	err := testF.CreateOperator(context.Background(), name)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		err := testF.DeleteOperator(name)
+		err := testF.DeleteOperator(context.Background(), name)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}()
-	err = e2eutil.WaitUntilOperatorReady(testF.KubeCli, testF.KubeNS, name)
+	err = e2eutil.WaitUntilOperatorReady(context.Background(), testF.KubeCli, testF.KubeNS, name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testClus, err := e2eutil.CreateCluster(t, testF.CRClient, testF.KubeNS, e2eutil.NewCluster("upgrade-test-", 3))
+	testClus, err := e2eutil.CreateCluster(t, context.Background(), testF.CRClient, testF.KubeNS, e2eutil.NewCluster("upgrade-test-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, testF.CRClient, testF.KubeCli, testClus); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), testF.CRClient, testF.KubeCli, testClus); err != nil {
 			t.Fatal(err)
 		}
 	}()
-	_, err = e2eutil.WaitUntilSizeReached(t, testF.CRClient, 3, 6, testClus)
+	_, err = e2eutil.WaitUntilSizeReached(t, context.Background(), testF.CRClient, 3, 6, testClus)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = testF.UpgradeOperator(name)
+	err = testF.UpgradeOperator(context.Background(), name)
 	if err != nil {
 		t.Fatal(err)
 	}
-	testClus, err = testF.CRClient.EtcdV1beta2().EtcdClusters(testF.KubeNS).Get(testClus.Name, metav1.GetOptions{})
+	testClus, err = testF.CRClient.EtcdV1beta2().EtcdClusters(testF.KubeNS).Get(context.Background(), testClus.Name, metav1.GetOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +77,7 @@ func TestResize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = e2eutil.WaitUntilSizeReached(t, testF.CRClient, 5, 6, testClus)
+	_, err = e2eutil.WaitUntilSizeReached(t, context.Background(), testF.CRClient, 5, 6, testClus)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,51 +85,51 @@ func TestResize(t *testing.T) {
 
 func TestHealOneMemberForOldCluster(t *testing.T) {
 	name := newOperatorName()
-	err := testF.CreateOperator(name)
+	err := testF.CreateOperator(context.Background(), name)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		err := testF.DeleteOperator(name)
+		err := testF.DeleteOperator(context.Background(), name)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}()
-	err = e2eutil.WaitUntilOperatorReady(testF.KubeCli, testF.KubeNS, name)
+	err = e2eutil.WaitUntilOperatorReady(context.Background(), testF.KubeCli, testF.KubeNS, name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testEtcd, err := e2eutil.CreateCluster(t, testF.CRClient, testF.KubeNS, e2eutil.NewCluster("upgrade-test-", 3))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), testF.CRClient, testF.KubeNS, e2eutil.NewCluster("upgrade-test-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, testF.CRClient, testF.KubeCli, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), testF.CRClient, testF.KubeCli, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
-	names, err := e2eutil.WaitUntilSizeReached(t, testF.CRClient, 3, 6, testEtcd)
+	names, err := e2eutil.WaitUntilSizeReached(t, context.Background(), testF.CRClient, 3, 6, testEtcd)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testF.UpgradeOperator(name)
+	err = testF.UpgradeOperator(context.Background(), name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = e2eutil.KillMembers(testF.KubeCli, testF.KubeNS, names[2])
+	err = e2eutil.KillMembers(context.Background(), testF.KubeCli, testF.KubeNS, names[2])
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	remaining, err := e2eutil.WaitUntilMembersWithNamesDeleted(t, testF.CRClient, 3, testEtcd, names[2])
+	remaining, err := e2eutil.WaitUntilMembersWithNamesDeleted(t, context.Background(), testF.CRClient, 3, testEtcd, names[2])
 	if err != nil {
 		t.Fatalf("failed to see members (%v) be deleted in time: %v", remaining, err)
 	}
 
-	_, err = e2eutil.WaitUntilSizeReached(t, testF.CRClient, 3, 6, testEtcd)
+	_, err = e2eutil.WaitUntilSizeReached(t, context.Background(), testF.CRClient, 3, 6, testEtcd)
 	if err != nil {
 		t.Fatalf("failed to heal one member: %v", err)
 	}

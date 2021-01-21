@@ -16,6 +16,7 @@ package framework
 
 import (
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"os/exec"
@@ -57,7 +58,7 @@ type Framework struct {
 }
 
 // Setup setups a test framework and points "Global" to it.
-func setup() error {
+func setup(ctx context.Context) error {
 	kubeconfig := flag.String("kubeconfig", "", "kube config path, e.g. $HOME/.kube/config")
 	kubeClusterDomain := flag.String("kube-cluster-domain", "cluster.local", "kube cluster domain")
 	opImage := flag.String("operator-image", "", "operator image, e.g. gcr.io/coreos-k8s-scale-testing/etcd-operator")
@@ -88,20 +89,20 @@ func setup() error {
 		return nil
 	}
 
-	return Global.setup()
+	return Global.setup(ctx)
 }
 
-func teardown() error {
+func teardown(ctx context.Context) error {
 	// Skip the etcd-operator teardown if the operator image was not specified
 	if len(Global.opImage) == 0 {
 		return nil
 	}
 
-	err := Global.deleteOperatorCompletely("etcd-operator")
+	err := Global.deleteOperatorCompletely(ctx,"etcd-operator")
 	if err != nil {
 		return err
 	}
-	err = Global.KubeClient.CoreV1().Services(Global.Namespace).Delete(etcdRestoreOperatorServiceName, metav1.NewDeleteOptions(1))
+	err = Global.KubeClient.CoreV1().Services(Global.Namespace).Delete(ctx, etcdRestoreOperatorServiceName, *metav1.NewDeleteOptions(1))
 	if err != nil && !apierrors.IsNotFound(err) {
 		return fmt.Errorf("failed to delete etcd restore operator service: %v", err)
 	}
@@ -110,8 +111,8 @@ func teardown() error {
 	return nil
 }
 
-func (f *Framework) setup() error {
-	err := f.SetupEtcdOperator()
+func (f *Framework) setup(ctx context.Context) error {
+	err := f.SetupEtcdOperator(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to setup etcd operator: %v", err)
 	}
@@ -121,7 +122,7 @@ func (f *Framework) setup() error {
 	return nil
 }
 
-func (f *Framework) SetupEtcdOperator() error {
+func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
 	pod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "etcd-operator",
@@ -189,14 +190,14 @@ func (f *Framework) SetupEtcdOperator() error {
 		},
 	}
 
-	p, err := k8sutil.CreateAndWaitPod(f.KubeClient, f.Namespace, pod, 60*time.Second)
+	p, err := k8sutil.CreateAndWaitPod(ctx, f.KubeClient, f.Namespace, pod, 60*time.Second)
 	if err != nil {
 		describePod(f.Namespace, "etcd-operator")
 		return err
 	}
 	logrus.Infof("etcd operator pod is running on node (%s)", p.Spec.NodeName)
 
-	return e2eutil.WaitUntilOperatorReady(f.KubeClient, f.Namespace, "etcd-operator")
+	return e2eutil.WaitUntilOperatorReady(ctx, f.KubeClient, f.Namespace, "etcd-operator")
 }
 
 func describePod(ns, name string) {
@@ -208,19 +209,19 @@ func describePod(ns, name string) {
 	logrus.Infof("describing %s pod: %s", name, out.String())
 }
 
-func (f *Framework) DeleteEtcdOperatorCompletely() error {
-	return f.deleteOperatorCompletely("etcd-operator")
+func (f *Framework) DeleteEtcdOperatorCompletely(ctx context.Context) error {
+	return f.deleteOperatorCompletely(ctx, "etcd-operator")
 }
 
-func (f *Framework) deleteOperatorCompletely(name string) error {
-	err := f.KubeClient.CoreV1().Pods(f.Namespace).Delete(name, metav1.NewDeleteOptions(1))
+func (f *Framework) deleteOperatorCompletely(ctx context.Context, name string) error {
+	err := f.KubeClient.CoreV1().Pods(f.Namespace).Delete(ctx, name, *metav1.NewDeleteOptions(1))
 	if err != nil {
 		return err
 	}
 	// Grace period isn't exactly accurate. It took ~10s for operator pod to completely disappear.
 	// We work around by increasing the wait time. Revisit this later.
 	err = retryutil.Retry(5*time.Second, 6, func() (bool, error) {
-		_, err := f.KubeClient.CoreV1().Pods(f.Namespace).Get(name, metav1.GetOptions{})
+		_, err := f.KubeClient.CoreV1().Pods(f.Namespace).Get(ctx, name, metav1.GetOptions{})
 		if err == nil {
 			return false, nil
 		}
@@ -236,7 +237,7 @@ func (f *Framework) deleteOperatorCompletely(name string) error {
 }
 
 // SetupEtcdRestoreOperatorService creates restore operator service that is used by etcd pod to retrieve backup.
-func (f *Framework) SetupEtcdRestoreOperatorService() error {
+func (f *Framework) SetupEtcdRestoreOperatorService(ctx context.Context) error {
 	svc := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: etcdRestoreOperatorServiceName,
@@ -249,7 +250,7 @@ func (f *Framework) SetupEtcdRestoreOperatorService() error {
 			}},
 		},
 	}
-	_, err := f.KubeClient.CoreV1().Services(f.Namespace).Create(svc)
+	_, err := f.KubeClient.CoreV1().Services(f.Namespace).Create(ctx, svc, metav1.CreateOptions{})
 	if err != nil {
 		return fmt.Errorf("create restore-operator service failed: %v", err)
 	}

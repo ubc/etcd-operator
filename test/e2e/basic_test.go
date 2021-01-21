@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -29,18 +30,18 @@ func TestCreateCluster(t *testing.T) {
 		t.Parallel()
 	}
 	f := framework.Global
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
 }
@@ -53,17 +54,17 @@ func TestPauseControl(t *testing.T) {
 	}
 
 	f := framework.Global
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	names, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, testEtcd)
+	names, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, testEtcd)
 	if err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
@@ -79,13 +80,13 @@ func TestPauseControl(t *testing.T) {
 	// TODO: make this wait for reliable
 	time.Sleep(5 * time.Second)
 
-	if err := e2eutil.KillMembers(f.KubeClient, f.Namespace, names[0]); err != nil {
+	if err := e2eutil.KillMembers(context.Background(), f.KubeClient, f.Namespace, names[0]); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := e2eutil.WaitUntilPodSizeReached(t, f.KubeClient, 2, 1, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilPodSizeReached(t, context.Background(), f.KubeClient, 2, 1, testEtcd); err != nil {
 		t.Fatalf("failed to wait for killed member to die: %v", err)
 	}
-	if _, err := e2eutil.WaitUntilPodSizeReached(t, f.KubeClient, 3, 1, testEtcd); err == nil {
+	if _, err := e2eutil.WaitUntilPodSizeReached(t, context.Background(), f.KubeClient, 3, 1, testEtcd); err == nil {
 		t.Fatalf("cluster should not be recovered: control is paused")
 	}
 
@@ -96,7 +97,7 @@ func TestPauseControl(t *testing.T) {
 		t.Fatalf("failed to resume control: %v", err)
 	}
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to resize to 3 members etcd cluster: %v", err)
 	}
 }
@@ -109,18 +110,18 @@ func TestEtcdUpgrade(t *testing.T) {
 	origEtcd := e2eutil.NewCluster("test-etcd-", 3)
 	origEtcd = e2eutil.ClusterWithVersion(origEtcd, "3.1.10")
 	origEtcd.Spec.Repository = "quay.io/coreos/etcd"
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, origEtcd)
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, origEtcd)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	err = e2eutil.WaitSizeAndVersionReached(t, f.KubeClient, "3.1.10", 3, f.RetryAttempts, testEtcd)
+	err = e2eutil.WaitSizeAndVersionReached(t, context.Background(), f.KubeClient, "3.1.10", 3, f.RetryAttempts, testEtcd)
 	if err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
@@ -135,7 +136,7 @@ func TestEtcdUpgrade(t *testing.T) {
 	}
 
 	// We have seen in k8s 1.7.1 env it took 35s for the pod to restart with the new image.
-	err = e2eutil.WaitSizeAndVersionReached(t, f.KubeClient, targetVersion, 3, 10, testEtcd)
+	err = e2eutil.WaitSizeAndVersionReached(t, context.Background(), f.KubeClient, targetVersion, 3, 10, testEtcd)
 	if err != nil {
 		t.Fatalf("failed to wait new version etcd cluster: %v", err)
 	}

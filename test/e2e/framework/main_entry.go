@@ -15,6 +15,7 @@
 package framework
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -22,14 +23,14 @@ import (
 )
 
 func MainEntry(m *testing.M) {
-	if err := setup(); err != nil {
+	if err := setup(context.Background()); err != nil {
 		logrus.Errorf("fail to setup framework: %v", err)
 		os.Exit(1)
 	}
 
 	code := m.Run()
 
-	if err := teardown(); err != nil {
+	if err := teardown(context.Background()); err != nil {
 		logrus.Errorf("fail to teardown framework: %v", err)
 		os.Exit(1)
 	}

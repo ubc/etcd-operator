@@ -1,9 +1,8 @@
 module github.com/coreos/etcd-operator
 
-go 1.13
+go 1.15
 
 require (
-	cloud.google.com/go/bigquery v1.4.0 // indirect
 	cloud.google.com/go/storage v1.6.0
 	github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.17
@@ -14,12 +13,8 @@ require (
 	github.com/coreos/bbolt v1.3.4 // indirect
 	github.com/coreos/etcd v3.3.25+incompatible
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
-	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/dnaeon/go-vcr v1.1.0 // indirect
-	github.com/dustin/go-humanize v1.0.0 // indirect
-	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/googleapis/gnostic v0.4.2 // indirect
-	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.5 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
@@ -29,11 +24,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200427203606-3cfed13b9966 // indirect
-	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.15.0 // indirect
-	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6 // indirect
-	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
@@ -44,8 +35,6 @@ require (
 	k8s.io/apiextensions-apiserver v0.20.2
 	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v0.20.2
-	k8s.io/code-generator v0.20.2 // indirect
-	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.27.0

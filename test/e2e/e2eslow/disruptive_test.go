@@ -15,6 +15,7 @@
 package e2eslow
 
 import (
+	"context"
 	"testing"
 
 	"github.com/coreos/etcd-operator/test/e2e/e2eutil"
@@ -24,40 +25,40 @@ import (
 // restart operator should resume cluster
 func TestRestartOperator(t *testing.T) {
 	f := framework.Global
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	names, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, 6, testEtcd)
+	names, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, 6, testEtcd)
 	if err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
 
-	if err := f.DeleteEtcdOperatorCompletely(); err != nil {
+	if err := f.DeleteEtcdOperatorCompletely(context.Background()); err != nil {
 		t.Fatalf("fail to delete etcd operator pod: %v", err)
 	}
 
-	if err := e2eutil.KillMembers(f.KubeClient, f.Namespace, names[0]); err != nil {
+	if err := e2eutil.KillMembers(context.Background(), f.KubeClient, f.Namespace, names[0]); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := e2eutil.WaitUntilPodSizeReached(t, f.KubeClient, 2, 1, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilPodSizeReached(t, context.Background(), f.KubeClient, 2, 1, testEtcd); err != nil {
 		t.Fatalf("failed to wait for killed member to die: %v", err)
 	}
-	if _, err := e2eutil.WaitUntilPodSizeReached(t, f.KubeClient, 3, 1, testEtcd); err == nil {
+	if _, err := e2eutil.WaitUntilPodSizeReached(t, context.Background(), f.KubeClient, 3, 1, testEtcd); err == nil {
 		t.Fatalf("cluster should not be recovered: operator is deleted")
 	}
 
-	if err := f.SetupEtcdOperator(); err != nil {
+	if err := f.SetupEtcdOperator(context.Background()); err != nil {
 		t.Fatalf("fail to restart etcd operator: %v", err)
 	}
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, 6, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, 6, testEtcd); err != nil {
 		t.Fatalf("failed to resize to 3 members etcd cluster: %v", err)
 	}
 }

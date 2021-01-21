@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -28,18 +29,18 @@ func TestResizeCluster3to5(t *testing.T) {
 		t.Parallel()
 	}
 	f := framework.Global
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 3))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
 	t.Log("reached to 3 members cluster")
@@ -51,7 +52,7 @@ func TestResizeCluster3to5(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 5, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 5, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to resize to 5 members etcd cluster: %v", err)
 	}
 }
@@ -61,18 +62,18 @@ func TestResizeCluster5to3(t *testing.T) {
 		t.Parallel()
 	}
 	f := framework.Global
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 5))
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, e2eutil.NewCluster("test-etcd-", 5))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 5, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 5, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to create 5 members etcd cluster: %v", err)
 	}
 	t.Log("reached to 5 members cluster")
@@ -84,7 +85,7 @@ func TestResizeCluster5to3(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, f.RetryAttempts, testEtcd); err != nil {
 		t.Fatalf("failed to resize to 3 members etcd cluster: %v", err)
 	}
 }
