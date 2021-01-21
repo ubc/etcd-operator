@@ -1,3 +1,10 @@
+# [0.11.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.10.1...v0.11.0) (2021-01-21)
+
+
+### Features
+
+* upgrade k8s and etcd libraries ([d8f44fb](https://gitlab.com/cbws/tools/etcd-operator/commit/d8f44fbcaa79f695fd6d9372ae0c30c82e8bdc69))
+
 ## [0.10.1](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.10.0...v0.10.1) (2021-01-21)
 
 
