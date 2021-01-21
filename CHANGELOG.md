@@ -1,3 +1,10 @@
+## [0.10.1](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.10.0...v0.10.1) (2021-01-21)
+
+
+### Bug Fixes
+
+* try and fix github.com/aliyun/aliyun-oss-go-sdk dependency update ([5a4025b](https://gitlab.com/cbws/tools/etcd-operator/commit/5a4025b2b11714a3d273135be50cef056df71622))
+
 ## [Unreleased]
 
 ### Added
