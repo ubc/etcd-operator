@@ -15,6 +15,7 @@
 package k8sutil
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -34,8 +35,8 @@ import (
 // updating a Cluster CR.
 type EtcdClusterCRUpdateFunc func(*api.EtcdCluster)
 
-func GetClusterList(restcli rest.Interface, ns string) (*api.EtcdClusterList, error) {
-	b, err := restcli.Get().RequestURI(listClustersURI(ns)).DoRaw()
+func GetClusterList(ctx context.Context, restcli rest.Interface, ns string) (*api.EtcdClusterList, error) {
+	b, err := restcli.Get().RequestURI(listClustersURI(ns)).DoRaw(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func listClustersURI(ns string) string {
 	return fmt.Sprintf("/apis/%s/namespaces/%s/%s", api.SchemeGroupVersion.String(), ns, api.EtcdClusterResourcePlural)
 }
 
-func CreateCRD(clientset apiextensionsclient.Interface, crdName, rkind, rplural, shortName string) error {
+func CreateCRD(ctx context.Context, clientset apiextensionsclient.Interface, crdName, rkind, rplural, shortName string) error {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: crdName,
@@ -69,16 +70,16 @@ func CreateCRD(clientset apiextensionsclient.Interface, crdName, rkind, rplural,
 	if len(shortName) != 0 {
 		crd.Spec.Names.ShortNames = []string{shortName}
 	}
-	_, err := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(crd)
+	_, err := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(ctx, crd, metav1.CreateOptions{})
 	if err != nil && !IsKubernetesResourceAlreadyExistError(err) {
 		return err
 	}
 	return nil
 }
 
-func WaitCRDReady(clientset apiextensionsclient.Interface, crdName string) error {
+func WaitCRDReady(ctx context.Context, clientset apiextensionsclient.Interface, crdName string) error {
 	err := retryutil.Retry(5*time.Second, 20, func() (bool, error) {
-		crd, err := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crdName, metav1.GetOptions{})
+		crd, err := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(ctx, crdName, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}

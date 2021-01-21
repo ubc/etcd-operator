@@ -4,11 +4,11 @@ go 1.13
 
 require (
 	cloud.google.com/go/bigquery v1.4.0 // indirect
-	cloud.google.com/go/storage v1.5.0
+	cloud.google.com/go/storage v1.6.0
 	github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.17
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
-	github.com/aliyun/aliyun-oss-go-sdk v2.1.6
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
 	github.com/aws/aws-sdk-go v1.36.25
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/coreos/bbolt v1.3.4 // indirect
@@ -18,7 +18,6 @@ require (
 	github.com/dnaeon/go-vcr v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/google/go-cmp v0.4.1 // indirect
 	github.com/googleapis/gnostic v0.4.2 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0 // indirect
@@ -37,20 +36,20 @@ require (
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
-	golang.org/x/tools v0.0.0-20200601175630-2caf76543d99 // indirect
-	google.golang.org/api v0.15.1
+	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
+	google.golang.org/api v0.20.0
 	google.golang.org/appengine v1.6.6 // indirect
 	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
-	k8s.io/api v0.16.10
-	k8s.io/apiextensions-apiserver v0.16.10
-	k8s.io/apimachinery v0.16.10
+	k8s.io/api v0.20.2
+	k8s.io/apiextensions-apiserver v0.20.2
+	k8s.io/apimachinery v0.20.2
 	k8s.io/client-go v0.20.2
+	k8s.io/code-generator v0.20.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
-replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.3.1
+replace google.golang.org/grpc => google.golang.org/grpc v1.27.0
 
-replace k8s.io/client-go => k8s.io/client-go v0.16.10
+replace github.com/coreos/etcd => github.com/ozonru/etcd v3.3.20-grpc1.27-origmodule+incompatible
 
 replace github.com/coreos/bbolt => github.com/coreos/bbolt v1.3.1-coreos.6

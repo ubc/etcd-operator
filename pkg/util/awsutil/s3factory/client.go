@@ -15,6 +15,7 @@
 package s3factory
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -39,7 +40,7 @@ type S3Client struct {
 }
 
 // NewClientFromSecret returns a S3 client based on given k8s secret containing aws credentials.
-func NewClientFromSecret(kubecli kubernetes.Interface, namespace, endpoint, awsSecret string, forcePathStyle bool) (w *S3Client, err error) {
+func NewClientFromSecret(ctx context.Context, kubecli kubernetes.Interface, namespace, endpoint, awsSecret string, forcePathStyle bool) (w *S3Client, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("new S3 client failed: %v", err)
@@ -50,7 +51,7 @@ func NewClientFromSecret(kubecli kubernetes.Interface, namespace, endpoint, awsS
 	if err != nil {
 		return nil, fmt.Errorf("failed to create aws config dir: (%v)", err)
 	}
-	so, err := setupAWSConfig(kubecli, namespace, awsSecret, endpoint, w.configDir, forcePathStyle)
+	so, err := setupAWSConfig(ctx, kubecli, namespace, awsSecret, endpoint, w.configDir, forcePathStyle)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup aws config: (%v)", err)
 	}
@@ -68,7 +69,7 @@ func (w *S3Client) Close() {
 }
 
 // setupAWSConfig setup local AWS config/credential files from Kubernetes aws secret.
-func setupAWSConfig(kubecli kubernetes.Interface, ns, secret, endpoint, configDir string, forcePathStyle bool) (*session.Options, error) {
+func setupAWSConfig(ctx context.Context, kubecli kubernetes.Interface, ns, secret, endpoint, configDir string, forcePathStyle bool) (*session.Options, error) {
 	options := &session.Options{}
 	options.SharedConfigState = session.SharedConfigEnable
 
@@ -77,7 +78,7 @@ func setupAWSConfig(kubecli kubernetes.Interface, ns, secret, endpoint, configDi
 
 	options.Config.S3ForcePathStyle = &forcePathStyle
 
-	se, err := kubecli.CoreV1().Secrets(ns).Get(secret, metav1.GetOptions{})
+	se, err := kubecli.CoreV1().Secrets(ns).Get(ctx, secret, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("setup AWS config failed: get k8s secret failed: %v", err)
 	}

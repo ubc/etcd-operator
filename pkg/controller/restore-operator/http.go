@@ -45,7 +45,7 @@ func (r *Restore) startHTTP() {
 }
 
 func (r *Restore) handleServeBackup(w http.ResponseWriter, req *http.Request) {
-	err := r.serveBackup(w, req)
+	err := r.serveBackup(req.Context(), w, req)
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func (r *Restore) handleServeBackup(w http.ResponseWriter, req *http.Request) {
 // serveBackup parses incoming request url of the form /backup/<restore-name>
 // get the etcd restore name.
 // Then it returns the etcd cluster backup snapshot to the caller.
-func (r *Restore) serveBackup(w http.ResponseWriter, req *http.Request) error {
+func (r *Restore) serveBackup(ctx context.Context, w http.ResponseWriter, req *http.Request) error {
 	restoreName := string(req.URL.Path[len(backupHTTPPath):])
 	if len(restoreName) == 0 {
 		return errors.New("restore name is not specified")
@@ -97,7 +97,7 @@ func (r *Restore) serveBackup(w http.ResponseWriter, req *http.Request) error {
 			return errors.New("invalid s3 restore source field (spec.s3), must specify all required subfields")
 		}
 
-		s3Cli, err := s3factory.NewClientFromSecret(r.kubecli, cr.Namespace, s3RestoreSource.Endpoint, s3RestoreSource.AWSSecret, s3RestoreSource.ForcePathStyle)
+		s3Cli, err := s3factory.NewClientFromSecret(ctx, r.kubecli, cr.Namespace, s3RestoreSource.Endpoint, s3RestoreSource.AWSSecret, s3RestoreSource.ForcePathStyle)
 		if err != nil {
 			return fmt.Errorf("failed to create S3 client: %v", err)
 		}
@@ -115,7 +115,7 @@ func (r *Restore) serveBackup(w http.ResponseWriter, req *http.Request) error {
 			return errors.New("invalid abs restore source field (spec.abs), must specify all required subfields")
 		}
 
-		absCli, err := absfactory.NewClientFromSecret(r.kubecli, cr.Namespace, absRestoreSource.ABSSecret)
+		absCli, err := absfactory.NewClientFromSecret(ctx, r.kubecli, cr.Namespace, absRestoreSource.ABSSecret)
 		if err != nil {
 			return fmt.Errorf("failed to create ABS client: %v", err)
 		}
@@ -152,7 +152,7 @@ func (r *Restore) serveBackup(w http.ResponseWriter, req *http.Request) error {
 			return errors.New("invalid oss restore source field (spec.oss), must specify all required subfields")
 		}
 
-		ossCli, err := ossfactory.NewClientFromSecret(r.kubecli, cr.Namespace, ossRestoreSource.Endpoint, ossRestoreSource.OSSSecret)
+		ossCli, err := ossfactory.NewClientFromSecret(ctx, r.kubecli, cr.Namespace, ossRestoreSource.Endpoint, ossRestoreSource.OSSSecret)
 		if err != nil {
 			return fmt.Errorf("failed to create OSS client: %v", err)
 		}

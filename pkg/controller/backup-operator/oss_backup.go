@@ -33,12 +33,12 @@ func handleOSS(ctx context.Context, kubecli kubernetes.Interface, s *api.OSSBack
 		s.Endpoint = "http://oss-cn-hangzhou.aliyuncs.com"
 	}
 	// TODO: controls NewClientFromSecret with ctx. This depends on upstream kubernetes to support API calls with ctx.
-	cli, err := ossfactory.NewClientFromSecret(kubecli, namespace, s.Endpoint, s.OSSSecret)
+	cli, err := ossfactory.NewClientFromSecret(ctx, kubecli, namespace, s.Endpoint, s.OSSSecret)
 	if err != nil {
 		return nil, err
 	}
 
-	tlsConfig, err := generateTLSConfig(kubecli, clientTLSSecret, namespace, allowSelfSignedCertificates)
+	tlsConfig, err := generateTLSConfig(ctx, kubecli, clientTLSSecret, namespace, allowSelfSignedCertificates)
 	if err != nil {
 		return nil, err
 	}
