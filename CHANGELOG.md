@@ -1,3 +1,15 @@
+# [1.0.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.11.0...v1.0.0) (2021-01-22)
+
+
+### Features
+
+* **tag:** remove auto-adding v to the etcd image version ([125c141](https://gitlab.com/cbws/tools/etcd-operator/commit/125c141793b8a19d6192cd503bac5b96084fa420))
+
+
+### BREAKING CHANGES
+
+* **tag:** image names now need the full tag
+
 # [0.11.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.10.1...v0.11.0) (2021-01-21)
 
 
