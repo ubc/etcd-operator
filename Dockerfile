@@ -47,6 +47,8 @@ COPY --from=builder /usr/local/bin/etcd-operator /usr/local/bin/etcd-operator
 COPY --from=builder /usr/local/bin/etcd-backup-operator /usr/local/bin/etcd-backup-operator
 COPY --from=builder /usr/local/bin/etcd-restore-operator /usr/local/bin/etcd-restore-operator
 
+COPY --from=builder /tmp /tmp
+
 USER etcd-operator:etcd-operator
 
 ENTRYPOINT ["operator"]
