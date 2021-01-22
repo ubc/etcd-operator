@@ -115,7 +115,7 @@ func WaitSizeAndVersionReached(t *testing.T, ctx context.Context, kubeClient kub
 }
 
 func getVersionFromImage(image string) string {
-	return strings.Split(image, ":v")[1]
+	return strings.Split(image, ":")[1]
 }
 
 func waitSizeReachedWithAccept(t *testing.T, ctx context.Context, crClient versioned.Interface, size, retries int, cl *api.EtcdCluster, accepts ...acceptFunc) ([]string, error) {
