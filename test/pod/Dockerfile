@@ -10,4 +10,6 @@ ADD ./ /go/src/github.com/coreos/etcd-operator
 
 WORKDIR /go/src/github.com/coreos/etcd-operator
 
+RUN go mod vendor
+
 RUN rm -rf _output _test .git .gitignore
