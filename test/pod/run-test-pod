@@ -40,6 +40,8 @@ do
     if [ "${ELAPSED}" -ge "${TIMEOUT}" ]; then
         echo "Timeout waiting for test-pod ${POD_NAME} to become running"
         echo "=============="
+        kubectl -n ${TEST_NAMESPACE} logs ${POD_NAME}
+        echo "=============="
         kubectl -n ${TEST_NAMESPACE} describe pod ${POD_NAME}
         echo "=============="
         exit 1

@@ -24,8 +24,6 @@ jobs:
 
       - name: Prepare e2e image
         run: |
-          go get -v -t -d ./...
-          go mod vendor
           hack/build/e2e/docker_push
         env:
           TEST_IMAGE: docker.pkg.github.com/cbws/etcd-operator/etcd-operator-e2e:${{github.sha}}
@@ -64,7 +62,6 @@ jobs:
           kind load docker-image $TEST_IMAGE
           kind load docker-image $OPERATOR_IMAGE
           hack/ci/run_e2e
-          cat _output/logs/*
         env:
           GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
           OPERATOR_IMAGE: docker.pkg.github.com/cbws/etcd-operator/operator:${{github.sha}}
@@ -75,6 +72,13 @@ jobs:
           BUILD_E2E: false
           TEST_IMAGE: docker.pkg.github.com/cbws/etcd-operator/etcd-operator-e2e:${{github.sha}}
           PASSES: e2e
+
+      - name: Show logs
+        if: ${{ always() }}
+        run: |
+          ls -laR
+          cat _output/logs/*
+
 #  test-e2eslow:
 #    name: E2E slow
 #    runs-on: ubuntu-latest
