@@ -128,8 +128,8 @@ func (c *Cluster) addOneMember(ctx context.Context) error {
 	defer etcdcli.Close()
 
 	newMember := c.newMember()
-	ctx, cancel := context.WithTimeout(context.Background(), constants.DefaultRequestTimeout)
-	resp, err := etcdcli.MemberAdd(ctx, []string{newMember.PeerURL()})
+	memberCtx, cancel := context.WithTimeout(ctx, constants.DefaultRequestTimeout)
+	resp, err := etcdcli.MemberAdd(memberCtx, []string{newMember.PeerURL()})
 	cancel()
 	if err != nil {
 		return fmt.Errorf("fail to add new member (%s): %v", newMember.Name, err)
