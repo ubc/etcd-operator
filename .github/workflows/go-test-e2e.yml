@@ -60,7 +60,7 @@ jobs:
           docker login docker.pkg.github.com -u marlinc -p "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
           docker pull $TEST_IMAGE
           docker pull $OPERATOR_IMAGE
-          export KUBECONFIG="$(kind get kubeconfig-path)"
+          export KUBECONFIG="${HOME}/.kube/config"
           kind load docker-image $TEST_IMAGE
           kind load docker-image $OPERATOR_IMAGE
           hack/ci/run_e2e

@@ -39,6 +39,16 @@ build:
   needs:
     - dependencies
 
+build:e2e:
+  extends:
+    - .base-build-image
+  needs:
+    - dependencies
+  variables:
+    BUILD_CONTEXT: $CI_PROJECT_DIR
+    BUILD_FILE: $CI_PROJECT_DIR/test/pod/Dockerfile
+    BUILD_IMAGE_NAME: "$CI_REGISTRY_IMAGE/e2e:$CI_COMMIT_SHA"
+
 unit-tests:
   stage: test
   image: golang:1.14.14-alpine
@@ -60,6 +70,49 @@ unit-tests:
     when: always
     reports:
       junit: report.xml
+
+e2e:
+  stage: test
+  extends:
+    - .dind
+  interruptible: true
+  resource_group: e2e
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_TITLE !~ /chore\(release\)\: version/'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  needs:
+    - build
+    - build:e2e
+  variables:
+    CGO_ENABLED: 0
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - apk add -U wget bash git sudo go
+    - wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
+    - chmod +x /usr/local/bin/kubectl
+    - kubectl get nodes -o wide
+    - kubectl get pods --all-namespaces -o wide
+    - kubectl get services --all-namespaces -o wide
+    - export OPERATOR_IMAGE=$BUILD_IMAGE_NAME
+    - export TEST_IMAGE="$CI_REGISTRY_IMAGE/e2e:$CI_COMMIT_SHA"
+    - export TEST_AWS_SECRET=na
+    - export TEST_S3_BUCKET=na
+    - export TEST_NAMESPACE=etcd-operator-e2e
+    - export BUILD_IMAGE=false
+    - export BUILD_E2E=false
+    - export PASSES=e2e
+    - kubectl create ns $TEST_NAMESPACE --dry-run -o yaml | kubectl apply -f -
+    - kubectl -n $TEST_NAMESPACE create secret docker-registry pull-secret --docker-server=$CI_REGISTRY --docker-username=$CI_REGISTRY_USER --docker-password=$CI_REGISTRY_PASSWORD --dry-run -o yaml | kubectl apply -f -
+    - "kubectl -n $TEST_NAMESPACE patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"pull-secret\"}]}' --dry-run -o yaml | kubectl apply -f -"
+  script: hack/ci/run_e2e
+  after_script:
+    - cat _output/logs/*
+  environment:
+    name: staging/e2e
+    action: prepare
+    kubernetes:
+      namespace: etcd-operator-e2e
 
 release:
   extends:

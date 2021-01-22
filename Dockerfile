@@ -14,9 +14,9 @@ COPY version version
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/operator github.com/coreos/etcd-operator/cmd/operator
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/backup-operator github.com/coreos/etcd-operator/cmd/backup-operator
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/restore-operator github.com/coreos/etcd-operator/cmd/restore-operator
+RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-operator github.com/coreos/etcd-operator/cmd/operator
+RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-backup-operator github.com/coreos/etcd-operator/cmd/backup-operator
+RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-restore-operator github.com/coreos/etcd-operator/cmd/restore-operator
 
 FROM alpine AS env-builder
 
@@ -43,9 +43,9 @@ COPY --from=env-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=env-builder /etc/passwd /etc/passwd
 COPY --from=env-builder /etc/group /etc/group
 
-COPY --from=builder /usr/local/bin/operator /usr/local/bin/operator
-COPY --from=builder /usr/local/bin/backup-operator /usr/local/bin/backup-operator
-COPY --from=builder /usr/local/bin/restore-operator /usr/local/bin/restore-operator
+COPY --from=builder /usr/local/bin/etcd-operator /usr/local/bin/etcd-operator
+COPY --from=builder /usr/local/bin/etcd-backup-operator /usr/local/bin/etcd-backup-operator
+COPY --from=builder /usr/local/bin/etcd-restore-operator /usr/local/bin/etcd-restore-operator
 
 USER etcd-operator:etcd-operator
 

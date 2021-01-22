@@ -15,6 +15,7 @@
 package e2e
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -36,24 +37,23 @@ func TestCreateClusterWithPV(t *testing.T) {
 		PersistentVolumeClaimSpec: &v1.PersistentVolumeClaimSpec{
 			AccessModes: []v1.PersistentVolumeAccessMode{v1.ReadWriteOnce},
 			Resources: v1.ResourceRequirements{
-				Requests: v1.ResourceList{v1.ResourceName(v1.ResourceStorage): resource.MustParse("512Mi")},
+				Requests: v1.ResourceList{v1.ResourceName(v1.ResourceStorage): resource.MustParse("1Gi")},
 			},
-			StorageClassName: func(s string) *string { return &s }("standard"),
 		},
 	}
 
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, c)
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
 
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, 30, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, 30, testEtcd); err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
 }

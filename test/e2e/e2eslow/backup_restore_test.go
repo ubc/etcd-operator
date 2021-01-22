@@ -62,7 +62,7 @@ func TestBackupAndRestore(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		err := e2eutil.DeleteSecrets(f.KubeClient, f.Namespace, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
+		err := e2eutil.DeleteSecrets(context.Background(), f.KubeClient, f.Namespace, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -72,21 +72,21 @@ func TestBackupAndRestore(t *testing.T) {
 	e2eutil.ClusterCRWithTLS(c, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
 	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, c)
 	defer func() {
-		if err := e2eutil.DeleteCluster(t, f.CRClient, f.KubeClient, testEtcd); err != nil {
+		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)
 		}
 	}()
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, 6, testEtcd); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, context.Background(), f.CRClient, 3, 6, testEtcd); err != nil {
 		t.Fatalf("failed to create 3 members etcd cluster: %v", err)
 	}
 
 	s3Path := path.Join(os.Getenv("TEST_S3_BUCKET"), "jenkins", suffix, time.Now().Format(time.RFC3339), "etcd.backup")
 
 	// Backup then restore tests
-	testEtcdBackupOperatorForS3Backup(t, clusterName, operatorClientTLSSecret, s3Path)
-	testEtcdRestoreOperatorForS3Source(t, clusterName, s3Path)
+	testEtcdBackupOperatorForS3Backup(t, context.Background(), clusterName, operatorClientTLSSecret, s3Path)
+	testEtcdRestoreOperatorForS3Source(t, context.Background(), clusterName, s3Path)
 	// Periodic backup test
-	testEtcdBackupOperatorForPeriodicS3Backup(t, clusterName, operatorClientTLSSecret, s3Path)
+	testEtcdBackupOperatorForPeriodicS3Backup(t, context.Background(), clusterName, operatorClientTLSSecret, s3Path)
 }
 
 func verifyAWSEnvVars() error {
@@ -99,8 +99,8 @@ func verifyAWSEnvVars() error {
 	return nil
 }
 
-func getEndpoints(kubeClient kubernetes.Interface, secureClient bool, namespace, clusterName string) ([]string, error) {
-	podList, err := kubeClient.CoreV1().Pods(namespace).List(k8sutil.ClusterListOpt(clusterName))
+func getEndpoints(ctx context.Context, kubeClient kubernetes.Interface, secureClient bool, namespace, clusterName string) ([]string, error) {
+	podList, err := kubeClient.CoreV1().Pods(namespace).List(ctx, k8sutil.ClusterListOpt(clusterName))
 	if err != nil {
 		return nil, err
 	}
@@ -131,20 +131,20 @@ func getEndpoints(kubeClient kubernetes.Interface, secureClient bool, namespace,
 
 // testEtcdBackupOperatorForS3Backup tests if etcd backup operator can save etcd backup to S3.
 // It returns the full S3 path where the backup is saved.
-func testEtcdBackupOperatorForS3Backup(t *testing.T, clusterName, operatorClientTLSSecret, s3Path string) {
+func testEtcdBackupOperatorForS3Backup(t *testing.T, ctx context.Context, clusterName, operatorClientTLSSecret, s3Path string) {
 	f := framework.Global
 
-	endpoints, err := getEndpoints(f.KubeClient, true, f.Namespace, clusterName)
+	endpoints, err := getEndpoints(ctx, f.KubeClient, true, f.Namespace, clusterName)
 	if err != nil {
 		t.Fatalf("failed to get endpoints: %v", err)
 	}
 	backupCR := e2eutil.NewS3Backup(endpoints, clusterName, s3Path, os.Getenv("TEST_AWS_SECRET"), operatorClientTLSSecret)
-	eb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Create(backupCR)
+	eb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Create(ctx, backupCR, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed to create etcd backup cr: %v", err)
 	}
 	defer func() {
-		if err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Delete(eb.Name, nil); err != nil {
+		if err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Delete(ctx, eb.Name, *metav1.NewDeleteOptions(0)); err != nil {
 			t.Fatalf("failed to delete etcd backup cr: %v", err)
 		}
 	}()
@@ -153,7 +153,7 @@ func testEtcdBackupOperatorForS3Backup(t *testing.T, clusterName, operatorClient
 	// 4 seconds timeout via retry is enough; duration longer than that may indicate internal issues and
 	// is worthy of investigation.
 	err = retryutil.Retry(time.Second, 4, func() (bool, error) {
-		reb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Get(eb.Name, metav1.GetOptions{})
+		reb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Get(ctx, eb.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("failed to retrieve backup CR: %v", err)
 		}
@@ -176,10 +176,10 @@ func testEtcdBackupOperatorForS3Backup(t *testing.T, clusterName, operatorClient
 
 // testEtcdBackupOperatorForPeriodicS3Backup test if etcd backup operator can periodically backup and upload to s3.
 // This e2e test would check basic function of periodic backup and MaxBackup functionality
-func testEtcdBackupOperatorForPeriodicS3Backup(t *testing.T, clusterName, operatorClientTLSSecret, s3Path string) {
+func testEtcdBackupOperatorForPeriodicS3Backup(t *testing.T, ctx context.Context, clusterName, operatorClientTLSSecret, s3Path string) {
 	f := framework.Global
 
-	endpoints, err := getEndpoints(f.KubeClient, true, f.Namespace, clusterName)
+	endpoints, err := getEndpoints(ctx, f.KubeClient, true, f.Namespace, clusterName)
 	if err != nil {
 		t.Fatalf("failed to get endpoints: %v", err)
 	}
@@ -190,7 +190,7 @@ func testEtcdBackupOperatorForPeriodicS3Backup(t *testing.T, clusterName, operat
 
 	// initialize s3 client
 	s3cli, err := s3factory.NewClientFromSecret(
-		f.KubeClient, f.Namespace, backupS3Source.Endpoint, backupS3Source.AWSSecret, backupS3Source.ForcePathStyle)
+		ctx, f.KubeClient, f.Namespace, backupS3Source.Endpoint, backupS3Source.AWSSecret, backupS3Source.ForcePathStyle)
 	if err != nil {
 		t.Fatalf("failed to initialize s3client: %v", err)
 	}
@@ -215,12 +215,12 @@ func testEtcdBackupOperatorForPeriodicS3Backup(t *testing.T, clusterName, operat
 	}
 
 	// create etcdbackup resource
-	eb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Create(backupCR)
+	eb, err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Create(ctx, backupCR, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed to create etcd back cr: %v", err)
 	}
 	defer func() {
-		if err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Delete(eb.Name, nil); err != nil {
+		if err := f.CRClient.EtcdV1beta2().EtcdBackups(f.Namespace).Delete(ctx, eb.Name, *metav1.NewDeleteOptions(0)); err != nil {
 			t.Fatalf("failed to delete etcd backup cr: %v", err)
 		}
 		// cleanup backup files
@@ -266,23 +266,23 @@ func testEtcdBackupOperatorForPeriodicS3Backup(t *testing.T, clusterName, operat
 }
 
 // testEtcdRestoreOperatorForS3Source tests if the restore-operator can restore an etcd cluster from an S3 restore source
-func testEtcdRestoreOperatorForS3Source(t *testing.T, clusterName, s3Path string) {
+func testEtcdRestoreOperatorForS3Source(t *testing.T, ctx context.Context, clusterName, s3Path string) {
 	f := framework.Global
 
 	restoreSource := api.RestoreSource{S3: e2eutil.NewS3RestoreSource(s3Path, os.Getenv("TEST_AWS_SECRET"))}
 	er := e2eutil.NewEtcdRestore(clusterName, 3, restoreSource, api.BackupStorageTypeS3)
-	er, err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Create(er)
+	er, err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Create(ctx, er, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("failed to create etcd restore cr: %v", err)
 	}
 	defer func() {
-		if err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Delete(er.Name, nil); err != nil {
+		if err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Delete(ctx, er.Name, *metav1.NewDeleteOptions(0)); err != nil {
 			t.Fatalf("failed to delete etcd restore cr: %v", err)
 		}
 	}()
 
 	err = retryutil.Retry(10*time.Second, 1, func() (bool, error) {
-		er, err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Get(er.Name, metav1.GetOptions{})
+		er, err := f.CRClient.EtcdV1beta2().EtcdRestores(f.Namespace).Get(ctx, er.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("failed to retrieve restore CR: %v", err)
 		}
@@ -307,7 +307,7 @@ func testEtcdRestoreOperatorForS3Source(t *testing.T, clusterName, s3Path string
 			Size: 3,
 		},
 	}
-	if _, err := e2eutil.WaitUntilSizeReached(t, f.CRClient, 3, 6, restoredCluster); err != nil {
+	if _, err := e2eutil.WaitUntilSizeReached(t, ctx, f.CRClient, 3, 6, restoredCluster); err != nil {
 		t.Fatalf("failed to see restored etcd cluster(%v) reach 3 members: %v", restoredCluster.Name, err)
 	}
 }

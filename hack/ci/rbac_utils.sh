@@ -11,12 +11,12 @@ function rbac_cleanup {
 
 function rbac_setup() {
     # Create ClusterRole
-    sed -e "s/<ROLE_NAME>/${ROLE_NAME}/g" example/rbac/cluster-role-template.yaml | kubectl create -f -
+    sed -e "s/<ROLE_NAME>/${ROLE_NAME}/g" example/rbac/cluster-role-template.yaml | kubectl apply -f -
 
     # Create ClusterRoleBinding
     sed -e "s/<ROLE_NAME>/${ROLE_NAME}/g" \
       -e "s/<ROLE_BINDING_NAME>/${ROLE_BINDING_NAME}/g" \
       -e "s/<NAMESPACE>/${TEST_NAMESPACE}/g" \
       example/rbac/cluster-role-binding-template.yaml \
-      | kubectl create -f -
+      | kubectl apply -f -
 }
