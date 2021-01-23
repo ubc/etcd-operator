@@ -10,7 +10,6 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
 	github.com/aws/aws-sdk-go v1.36.25
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
-	github.com/coreos/bbolt v1.3.4 // indirect
 	github.com/coreos/etcd v3.4.14+incompatible
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/dnaeon/go-vcr v1.1.0 // indirect
@@ -38,5 +37,3 @@ require (
 )
 
 replace github.com/coreos/etcd => github.com/ozonru/etcd v3.3.20-grpc1.27-origmodule+incompatible
-
-replace github.com/coreos/bbolt => github.com/coreos/bbolt v1.3.1-coreos.6
