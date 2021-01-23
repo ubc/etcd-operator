@@ -37,8 +37,6 @@ require (
 	k8s.io/client-go v0.20.2
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.27.0
-
 replace github.com/coreos/etcd => github.com/ozonru/etcd v3.3.20-grpc1.27-origmodule+incompatible
 
 replace github.com/coreos/bbolt => github.com/coreos/bbolt v1.3.1-coreos.6
