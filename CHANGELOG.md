@@ -1,3 +1,10 @@
+# [1.1.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v1.0.0...v1.1.0) (2021-01-23)
+
+
+### Features
+
+* **backup-operator:** add prometheus-metrics. ([6dece02](https://gitlab.com/cbws/tools/etcd-operator/commit/6dece028c3595252bdc9f769cf9333b6b3a4847b))
+
 # [1.0.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v0.11.0...v1.0.0) (2021-01-22)
 
 
