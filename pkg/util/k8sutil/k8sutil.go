@@ -168,10 +168,13 @@ func CreateClientService(ctx context.Context, kubecli kubernetes.Interface, clus
 		TargetPort: intstr.FromInt(EtcdClientPort),
 		Protocol:   v1.ProtocolTCP,
 	}}
-	return createService(ctx, kubecli, ClientServiceName(clusterName), clusterName, ns, "", ports, owner, false, policy)
+	return createService(ctx, kubecli, ClientServiceName(clusterName, policy), clusterName, ns, "", ports, owner, false, policy)
 }
 
-func ClientServiceName(clusterName string) string {
+func ClientServiceName(clusterName string, policy *api.ServicePolicy) string {
+	if policy != nil && len(policy.Name) > 0 {
+		return policy.Name
+	}
 	return clusterName + "-client"
 }
 

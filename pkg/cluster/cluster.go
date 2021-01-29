@@ -204,7 +204,7 @@ func (c *Cluster) run(ctx context.Context) {
 	if err := c.setupServices(ctx); err != nil {
 		c.logger.Errorf("fail to setup etcd services: %v", err)
 	}
-	c.status.ServiceName = k8sutil.ClientServiceName(c.cluster.Name)
+	c.status.ServiceName = k8sutil.ClientServiceName(c.cluster.Name, c.cluster.Spec.Service)
 	c.status.ClientPort = k8sutil.EtcdClientPort
 
 	c.status.SetPhase(api.ClusterPhaseRunning)

@@ -24,6 +24,10 @@ func applyServicePolicy(service *v1.Service, policy *api.ServicePolicy) {
 		return
 	}
 
+	if len(policy.Selector) != 0 {
+		service.Spec.Selector = policy.Selector
+	}
+
 	for key, value := range policy.Annotations {
 		service.ObjectMeta.Annotations[key] = value
 	}

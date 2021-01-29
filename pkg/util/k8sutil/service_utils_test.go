@@ -94,3 +94,54 @@ func TestApplyServicePolicyWithAnnotation(t *testing.T) {
 		t.Errorf("expect expected=%v, got=%v", annotations, actual)
 	}
 }
+
+func TestApplyServicePolicyEmptySelector(t *testing.T) {
+	selector := map[string]string{
+		"key1": "value1",
+		"key2": "value2",
+	}
+	svc := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "service",
+		},
+		Spec: v1.ServiceSpec{
+			Selector:  selector,
+		},
+	}
+	policy := &api.ServicePolicy{
+		Selector: map[string]string{},
+	}
+	applyServicePolicy(svc, policy)
+	actual := svc.Spec.Selector
+	if !reflect.DeepEqual(selector, actual) {
+		t.Errorf("expect expected=%v, got=%v", selector, actual)
+	}
+}
+
+func TestApplyServicePolicyWithSelector(t *testing.T) {
+	selector := map[string]string{
+		"key1": "value1",
+		"key2": "value2",
+	}
+	svc := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "service",
+		},
+		Spec: v1.ServiceSpec{
+			Selector:  selector,
+		},
+	}
+	customSelector := map[string]string{
+		"key3": "value3",
+		"key4": "value4",
+	}
+
+	policy := &api.ServicePolicy{
+		Selector: customSelector,
+	}
+	applyServicePolicy(svc, policy)
+	actual := svc.Spec.Selector
+	if !reflect.DeepEqual(customSelector, actual) {
+		t.Errorf("expect expected=%v, got=%v", selector, actual)
+	}
+}
