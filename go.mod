@@ -33,7 +33,7 @@ require (
 	k8s.io/api v0.20.3
 	k8s.io/apiextensions-apiserver v0.20.2
 	k8s.io/apimachinery v0.20.3
-	k8s.io/client-go v0.20.2
+	k8s.io/client-go v0.20.3
 )
 
 replace github.com/coreos/etcd => github.com/ozonru/etcd v3.3.20-grpc1.27-origmodule+incompatible
