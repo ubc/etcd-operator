@@ -1,4 +1,4 @@
-FROM golang AS builder
+FROM golang:1.15.8 AS builder
 WORKDIR /go/src/github.com/coreos/etcd-operator
 
 ARG VERSION=dev
