@@ -1,3 +1,10 @@
+## [1.1.1](https://gitlab.com/cbws/tools/etcd-operator/compare/v1.1.0...v1.1.1) (2021-02-18)
+
+
+### Bug Fixes
+
+* lock golang version to older version ([33def29](https://gitlab.com/cbws/tools/etcd-operator/commit/33def29c56e38eab69c817050d44be4324d792b8))
+
 # [1.1.0](https://gitlab.com/cbws/tools/etcd-operator/compare/v1.0.0...v1.1.0) (2021-01-23)
 
 
