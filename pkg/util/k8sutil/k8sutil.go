@@ -105,9 +105,9 @@ func makeRestoreInitContainers(backupURL *url.URL, token, repo, version string, 
 	return []v1.Container{
 		{
 			Name:  "fetch-backup",
-			Image: "tutum/curl",
+			Image: "curlimages/curl",
 			Command: []string{
-				"/bin/bash", "-ec",
+				"/bin/sh", "-ec",
 				fmt.Sprintf(`
 httpcode=$(curl --write-out %%\{http_code\} --silent --output %[1]s %[2]s)
 if [[ "$httpcode" != "200" ]]; then
