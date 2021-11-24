@@ -1,7 +1,7 @@
 # etcd operator
 
 unit/integration:
-[![Builg Status](https://github.com/cbws/etcd-operator/workflows/Testing/badge.svg)](https://github.com/cbws/etcd-operator/actions?query=workflow%3ATesting)
+[![Builg Status](https://github.com/ubc/etcd-operator/workflows/Testing/badge.svg)](https://github.com/ubc/etcd-operator/actions?query=workflow%3ATesting)
 
 ### Project status: beta
 
