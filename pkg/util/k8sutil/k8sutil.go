@@ -315,7 +315,8 @@ func NewSeedMemberPod(ctx context.Context, kubecli kubernetes.Interface, cluster
 	token := uuid.New()
 	pod, err := newEtcdPod(ctx, kubecli, m, ms.PeerURLPairs(), clusterName, clusterNamespace, "new", token, cs)
 	// TODO: PVC datadir support for restore process
-	AddEtcdVolumeToPod(pod, nil, cs.Pod.Tmpfs)
+        //AddEtcdVolumeToPod(pod, nil, cs.Pod.Tmpfs)
+	AddEtcdVolumeToPod(pod, nil, false)
 	if backupURL != nil {
 		addRecoveryToPod(pod, token, m, cs, backupURL)
 	}
