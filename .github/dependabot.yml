@@ -27,10 +27,6 @@ updates:
   reviewers:
   - nberlee
   ignore:
-  - dependency-name: github.com/aws/aws-sdk-go
+  - dependency-name: go.etcd.io/etcd
     versions:
-    - "> 1.13.8"
-    - "< 2"
-  - dependency-name: github.com/coreos/etcd
-    versions:
-    - "> 3.2.13+incompatible"
+    - "> v3.4.18+incompatible"

@@ -31,6 +31,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -71,19 +72,16 @@ func main() {
 	logrus.Infof("Git SHA: %s", version.GitSHA)
 
 	kubecli := k8sutil.MustNewKubeClient()
-	rl, err := resourcelock.New(
-		resourcelock.EndpointsResourceLock,
-		namespace,
-		"etcd-backup-operator",
-		kubecli.CoreV1(),
-		kubecli.CoordinationV1(),
-		resourcelock.ResourceLockConfig{
-			Identity:      id,
-			EventRecorder: createRecorder(kubecli, name, namespace),
+
+	rl := &resourcelock.LeaseLock{
+		LeaseMeta: metav1.ObjectMeta{
+			Name:      "etcd-backup-operator",
+			Namespace: namespace,
 		},
-	)
-	if err != nil {
-		logrus.Fatalf("error creating lock: %v", err)
+		Client: kubecli.CoordinationV1(),
+		LockConfig: resourcelock.ResourceLockConfig{
+			Identity: id,
+		},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

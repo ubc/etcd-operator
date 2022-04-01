@@ -21,11 +21,11 @@ import (
 	"sort"
 	"time"
 
+	"go.etcd.io/etcd/client/v3"
 	"github.com/on2itsecurity/etcd-operator/pkg/backup/util"
 	"github.com/on2itsecurity/etcd-operator/pkg/backup/writer"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"

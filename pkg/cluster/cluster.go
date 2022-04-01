@@ -32,7 +32,7 @@ import (
 
 	"github.com/pborman/uuid"
 	"github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -42,7 +42,7 @@ import (
 var (
 	reconcileInterval         = 8 * time.Second
 	podTerminationGracePeriod = int64(5)
-	errAllPodsDead = newFatalError("all etcd pods are dead.")
+	errAllPodsDead            = newFatalError("all etcd pods are dead.")
 )
 
 type clusterEventType string
@@ -89,7 +89,7 @@ type Cluster struct {
 
 func New(config Config, cl *api.EtcdCluster) *Cluster {
 	lg := logrus.WithField("pkg", "cluster").WithField("cluster-name", cl.Name).WithField("cluster-namespace", cl.Namespace)
-	if len(cl.Name) > k8sutil.MaxNameLength || len(cl.ClusterName) > k8sutil.MaxNameLength {
+	if len(cl.Name) > k8sutil.MaxNameLength {
 		return nil
 	}
 

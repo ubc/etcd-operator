@@ -29,6 +29,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -80,19 +81,15 @@ func main() {
 		logrus.Fatalf("create service failed: %+v", err)
 	}
 
-	rl, err := resourcelock.New(
-		resourcelock.EndpointsResourceLock,
-		namespace,
-		"etcd-restore-operator",
-		kubecli.CoreV1(),
-		kubecli.CoordinationV1(),
-		resourcelock.ResourceLockConfig{
-			Identity:      id,
-			EventRecorder: createRecorder(kubecli, name, namespace),
+	rl := &resourcelock.LeaseLock{
+		LeaseMeta: metav1.ObjectMeta{
+			Name:      "etcd-restore-operator",
+			Namespace: namespace,
 		},
-	)
-	if err != nil {
-		logrus.Fatalf("error creating lock: %v", err)
+		Client: kubecli.CoordinationV1(),
+		LockConfig: resourcelock.ResourceLockConfig{
+			Identity: id,
+		},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
