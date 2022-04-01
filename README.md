@@ -1,7 +1,9 @@
 # etcd operator
 
+This fork only focuses on reliable/stable etcd-operator on newer Kubernetes versions. There is no intent to make extra functionality.
+
 unit/integration:
-[![Builg Status](https://github.com/cbws/etcd-operator/workflows/Testing/badge.svg)](https://github.com/cbws/etcd-operator/actions?query=workflow%3ATesting)
+[![Build Status](https://github.com/on2itsecurity/etcd-operator/actions/workflows/go-test-e2e.yml/badge.svg)](https://github.com/on2itsecurity/etcd-operator/actions?query=workflow%3ATesting)
 
 ### Project status: beta
 

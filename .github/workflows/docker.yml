@@ -9,6 +9,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
 
     - name: Set up Go 1.13
@@ -18,7 +21,7 @@ jobs:
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2.3.4
+      uses: actions/checkout@v3
 
     - name: Get dependencies
       run: |
@@ -32,13 +35,19 @@ jobs:
         hack/build/restore-operator/build
 
     - name: Build image
-      run: docker build -t docker.pkg.github.com/cbws/etcd-operator/operator:latest -f hack/build/Dockerfile .
+      run: docker build -t docker.pkg.github.com/on2itsecurity/etcd-operator/operator:latest -f hack/build/Dockerfile .
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push image to GPR
       if: github.ref == 'refs/heads/master'
       run: |
-        docker login docker.pkg.github.com -u marlinc -p "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
         hack/build/docker_push
       env:
         GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
-        IMAGE: docker.pkg.github.com/cbws/etcd-operator/operator:latest
+        IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/operator:latest

@@ -15,16 +15,18 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2.3.4
 
-      - name: Docker login
-        run: docker login docker.pkg.github.com -u marlinc -p "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
-        env:
-          GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare e2e image
         run: |
           hack/build/e2e/docker_push
         env:
-          TEST_IMAGE: docker.pkg.github.com/cbws/etcd-operator/etcd-operator-e2e:${{github.sha}}
+          TEST_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/etcd-operator-e2e:${{github.sha}}
 
       - name: Prepare operator image
         run: |
@@ -33,7 +35,7 @@ jobs:
           hack/build/restore-operator/build
           IMAGE=${OPERATOR_IMAGE} hack/build/docker_push
         env:
-          OPERATOR_IMAGE: docker.pkg.github.com/cbws/etcd-operator/operator:${{github.sha}}
+          OPERATOR_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/operator:${{github.sha}}
   test-e2e:
     name: E2E
     runs-on: ubuntu-latest
@@ -48,27 +50,40 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2.3.4
 
-      - name: KinD (Kubernetes in Docker) Action
-        uses: engineerd/setup-kind@v0.5.0
+      - uses: AbsaOSS/k3d-action@v2
+        name: "Create single k3d Cluster with imported Registry"
+        with:
+          cluster-name: test-cluster-1
+          args: >-
+            --image docker.io/rancher/k3s:v1.20.15-k3s1
+            --agents 1
+            --no-lb
+            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Test
         run: |
-          docker login docker.pkg.github.com -u marlinc -p "${GITHUB_PACKAGE_REGISTRY_TOKEN}"
           docker pull $TEST_IMAGE
           docker pull $OPERATOR_IMAGE
           export KUBECONFIG="${HOME}/.kube/config"
-          kind load docker-image $TEST_IMAGE
-          kind load docker-image $OPERATOR_IMAGE
+          k3d image import $TEST_IMAGE -c test-cluster-1 --verbose
+          k3d image import $OPERATOR_IMAGE -c test-cluster-1 --verbose
           hack/ci/run_e2e
         env:
           GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
-          OPERATOR_IMAGE: docker.pkg.github.com/cbws/etcd-operator/operator:${{github.sha}}
+          OPERATOR_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/operator:${{github.sha}}
           TEST_AWS_SECRET: na
           TEST_S3_BUCKET: na
           TEST_NAMESPACE: default
           BUILD_IMAGE: false
           BUILD_E2E: false
-          TEST_IMAGE: docker.pkg.github.com/cbws/etcd-operator/etcd-operator-e2e:${{github.sha}}
+          TEST_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/etcd-operator-e2e:${{github.sha}}
           PASSES: e2e
 
       - name: Show logs
@@ -107,11 +122,11 @@ jobs:
 #          hack/ci/run_e2e
 #        env:
 #          GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_PACKAGE_REGISTRY_TOKEN }}
-#          OPERATOR_IMAGE: docker.pkg.github.com/cbws/etcd-operator/operator:${{github.sha}}
+#          OPERATOR_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/operator:${{github.sha}}
 #          TEST_AWS_SECRET: na
 #          TEST_S3_BUCKET: na
 #          TEST_NAMESPACE: default
 #          BUILD_IMAGE: false
 #          BUILD_E2E: false
-#          TEST_IMAGE: docker.pkg.github.com/cbws/etcd-operator/etcd-operator-e2e:${{github.sha}}
+#          TEST_IMAGE: docker.pkg.github.com/on2itsecurity/etcd-operator/etcd-operator-e2e:${{github.sha}}
 #          PASSES: e2eslow
