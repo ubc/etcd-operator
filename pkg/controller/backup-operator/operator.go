@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"sync"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
-	"github.com/coreos/etcd-operator/pkg/client"
-	"github.com/coreos/etcd-operator/pkg/generated/clientset/versioned"
-	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/on2itsecurity/etcd-operator/pkg/client"
+	"github.com/on2itsecurity/etcd-operator/pkg/generated/clientset/versioned"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
 
 	"github.com/sirupsen/logrus"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"

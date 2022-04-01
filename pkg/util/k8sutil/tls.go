@@ -21,7 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"k8s.io/client-go/kubernetes"
-	"github.com/coreos/etcd-operator/pkg/util/etcdutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/etcdutil"
 )
 
 type TLSData struct {

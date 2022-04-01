@@ -18,12 +18,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/coreos/etcd-operator/pkg/client"
-	"github.com/coreos/etcd-operator/pkg/generated/clientset/versioned"
-	"github.com/coreos/etcd-operator/pkg/util/constants"
-	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
-	"github.com/coreos/etcd-operator/pkg/util/probe"
-	"github.com/coreos/etcd-operator/test/e2e/e2eutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/client"
+	"github.com/on2itsecurity/etcd-operator/pkg/generated/clientset/versioned"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/probe"
+	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	"k8s.io/api/core/v1"

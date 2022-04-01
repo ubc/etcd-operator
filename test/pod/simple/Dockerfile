@@ -6,9 +6,9 @@ RUN wget -nv -O /bin/kubectl https://storage.googleapis.com/kubernetes-release/r
 
 RUN chmod a+x /bin/kubectl
 
-ADD ./ /go/src/github.com/coreos/etcd-operator
+ADD ./ /go/src/github.com/on2itsecurity/etcd-operator
 
-WORKDIR /go/src/github.com/coreos/etcd-operator
+WORKDIR /go/src/github.com/on2itsecurity/etcd-operator
 
 RUN go test ./test/e2e/ -c -o /bin/etcd-operator-e2e --race
 
@@ -16,6 +16,6 @@ FROM busybox:1.28.3-glibc
 
 COPY --from=builder /bin/etcd-operator-e2e /bin
 COPY --from=builder /bin/kubectl /bin
-COPY --from=builder /go/src/github.com/coreos/etcd-operator/test/pod/simple/run-e2e /bin/run-e2e
+COPY --from=builder /go/src/github.com/on2itsecurity/etcd-operator/test/pod/simple/run-e2e /bin/run-e2e
 
 CMD ["/bin/run-e2e"]

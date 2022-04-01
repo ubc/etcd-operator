@@ -16,7 +16,7 @@ package k8sutil
 
 import (
 	"k8s.io/api/core/v1"
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
 )
 
 func applyServicePolicy(service *v1.Service, policy *api.ServicePolicy) {

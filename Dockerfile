@@ -1,5 +1,5 @@
-FROM golang:1.15.8 AS builder
-WORKDIR /go/src/github.com/coreos/etcd-operator
+FROM golang:1.18 AS builder
+WORKDIR /go/src/github.com/on2itsecurity/etcd-operator
 
 ARG VERSION=dev
 ARG REVISION=dev
@@ -14,9 +14,9 @@ COPY version version
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-operator github.com/coreos/etcd-operator/cmd/operator
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-backup-operator github.com/coreos/etcd-operator/cmd/backup-operator
-RUN go build --ldflags "-w -s -X 'github.com/coreos/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-restore-operator github.com/coreos/etcd-operator/cmd/restore-operator
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-operator github.com/on2itsecurity/etcd-operator/cmd/operator
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-backup-operator github.com/on2itsecurity/etcd-operator/cmd/backup-operator
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-restore-operator github.com/on2itsecurity/etcd-operator/cmd/restore-operator
 
 FROM alpine AS env-builder
 

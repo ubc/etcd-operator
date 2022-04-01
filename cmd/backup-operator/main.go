@@ -23,10 +23,10 @@ import (
 	"runtime"
 	"time"
 
-	controller "github.com/coreos/etcd-operator/pkg/controller/backup-operator"
-	"github.com/coreos/etcd-operator/pkg/util/constants"
-	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
-	"github.com/coreos/etcd-operator/version"
+	controller "github.com/on2itsecurity/etcd-operator/pkg/controller/backup-operator"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
+	"github.com/on2itsecurity/etcd-operator/version"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"

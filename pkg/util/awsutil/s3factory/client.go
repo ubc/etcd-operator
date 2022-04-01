@@ -21,7 +21,7 @@ import (
 	"os"
 	"path"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"

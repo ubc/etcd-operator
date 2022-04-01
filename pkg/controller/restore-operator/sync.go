@@ -18,11 +18,11 @@ import (
 	"context"
 	"fmt"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
-	"github.com/coreos/etcd-operator/pkg/backup/backupapi"
-	"github.com/coreos/etcd-operator/pkg/util/etcdutil"
-	"github.com/coreos/etcd-operator/pkg/util/k8sutil"
-	"github.com/coreos/etcd-operator/pkg/util/retryutil"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/on2itsecurity/etcd-operator/pkg/backup/backupapi"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/etcdutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/retryutil"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -25,9 +25,9 @@ import (
 	"strings"
 	"time"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
-	"github.com/coreos/etcd-operator/pkg/util/etcdutil"
-	"github.com/coreos/etcd-operator/pkg/util/retryutil"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/etcdutil"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/retryutil"
 	"github.com/pborman/uuid"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -275,7 +275,7 @@ func AddEtcdVolumeToPod(pod *v1.Pod, pvc *v1.PersistentVolumeClaim, tmpfs bool) 
 		vol.VolumeSource = v1.VolumeSource{
 			PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{ClaimName: pvc.Name},
 		}
-               // Addresses case C from https://github.com/coreos/etcd-operator/blob/master/doc/design/persistent_volumes_etcd_data.md
+               // Addresses case C from https://github.com/on2itsecurity/etcd-operator/blob/master/doc/design/persistent_volumes_etcd_data.md
                // When PVC is used, make the pod auto recover in case of failure
                pod.Spec.RestartPolicy = v1.RestartPolicyAlways
 	} else {
@@ -483,7 +483,7 @@ func MustNewKubeClient() kubernetes.Interface {
 
 func InClusterConfig() (*rest.Config, error) {
 	// Work around https://github.com/kubernetes/kubernetes/issues/40973
-	// See https://github.com/coreos/etcd-operator/issues/731#issuecomment-283804819
+	// See https://github.com/on2itsecurity/etcd-operator/issues/731#issuecomment-283804819
 	if len(os.Getenv("KUBERNETES_SERVICE_HOST")) == 0 {
 		addrs, err := net.LookupHost("kubernetes.default.svc")
 		if err != nil {

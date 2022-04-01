@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"time"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
-	"github.com/coreos/etcd-operator/pkg/backup/metrics"
-	"github.com/coreos/etcd-operator/pkg/util/constants"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/on2itsecurity/etcd-operator/pkg/backup/metrics"
+	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"

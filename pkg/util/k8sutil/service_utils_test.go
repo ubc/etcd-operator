@@ -19,7 +19,7 @@ import (
 
   "k8s.io/api/core/v1"
   metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
   "reflect"
 )
 

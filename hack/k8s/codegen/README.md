@@ -8,7 +8,7 @@ It should print:
 
 ```
 Generating deepcopy funcs
-Generating clientset for etcd:v1beta2 at github.com/coreos/etcd-operator/pkg/generated/clientset
-Generating listers for etcd:v1beta2 at github.com/coreos/etcd-operator/pkg/generated/listers
-Generating informers for etcd:v1beta2 at github.com/coreos/etcd-operator/pkg/generated/informers
+Generating clientset for etcd:v1beta2 at github.com/on2itsecurity/etcd-operator/pkg/generated/clientset
+Generating listers for etcd:v1beta2 at github.com/on2itsecurity/etcd-operator/pkg/generated/listers
+Generating informers for etcd:v1beta2 at github.com/on2itsecurity/etcd-operator/pkg/generated/informers
 ```

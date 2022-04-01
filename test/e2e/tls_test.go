@@ -22,8 +22,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coreos/etcd-operator/test/e2e/e2eutil"
-	"github.com/coreos/etcd-operator/test/e2e/framework"
+	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
+	"github.com/on2itsecurity/etcd-operator/test/e2e/framework"
 )
 
 func init() {

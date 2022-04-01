@@ -17,7 +17,7 @@ package controller
 import (
 	"testing"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
 )
 
 func TestValidate(t *testing.T) {

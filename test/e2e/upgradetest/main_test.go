@@ -19,7 +19,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/coreos/etcd-operator/test/e2e/upgradetest/framework"
+	"github.com/on2itsecurity/etcd-operator/test/e2e/upgradetest/framework"
 
 	"github.com/sirupsen/logrus"
 )

@@ -20,8 +20,8 @@ import (
 	"math/rand"
 	"testing"
 
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
-	"github.com/coreos/etcd-operator/test/e2e/e2eutil"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
+	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

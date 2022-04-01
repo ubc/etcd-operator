@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	api "github.com/coreos/etcd-operator/pkg/apis/etcd/v1beta2"
+	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"

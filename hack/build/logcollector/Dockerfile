@@ -2,9 +2,9 @@
 
 FROM golang:1.11.5
 
-ADD ./ /go/src/github.com/coreos/etcd-operator
+ADD ./ /go/src/github.com/on2itsecurity/etcd-operator
 
-WORKDIR /go/src/github.com/coreos/etcd-operator
+WORKDIR /go/src/github.com/on2itsecurity/etcd-operator
 
 RUN rm -rf _output _test .git .gitignore
 
