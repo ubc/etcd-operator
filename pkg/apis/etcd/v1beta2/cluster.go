@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	defaultRepository  = "quay.io/coreos/etcd"
-	DefaultEtcdVersion = "v3.2.13"
+	defaultRepository  = "gcr.io/etcd-development/etcd"
+	DefaultEtcdVersion = "v3.4.18"
 )
 
 var (
@@ -76,17 +76,17 @@ type ClusterSpec struct {
 	//   https://github.com/etcd-io/etcd/releases
 	// That means, it should have exact same tags and the same meaning for the tags.
 	//
-	// By default, it is `quay.io/coreos/etcd`.
+	// By default, it is `gcr.io/etcd-development/etcd`, etcd.io recognises `quay.io/coreos/etcd` as a "secondary" option, and could be used as well.
 	Repository string `json:"repository,omitempty"`
 
 	// Version is the expected version of the etcd cluster.
 	// The etcd-operator will eventually make the etcd cluster version
 	// equal to the expected version.
 	//
-	// The version must follow the [semver]( http://semver.org) format, for example "3.2.13".
+	// The version must follow the [semver]( http://semver.org) format, for example "3.4.18".
 	// Only etcd released versions are supported: https://github.com/etcd-io/etcd/releases
 	//
-	// If version is not set, default is "v3.2.13".
+	// If version is not set, default is "v3.4.18.
 	Version string `json:"version,omitempty"`
 
 	// Paused is to pause the control of the operator for the etcd cluster.
