@@ -44,6 +44,7 @@ const (
 type BackupStorageType string
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
 
 // EtcdBackupList is a list of EtcdBackup.
 type EtcdBackupList struct {
@@ -54,6 +55,7 @@ type EtcdBackupList struct {
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
 
 // EtcdBackup represents a Kubernetes EtcdBackup Custom Resource.
 type EtcdBackup struct {

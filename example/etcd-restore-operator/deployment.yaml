@@ -1,19 +1,22 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: etcd-restore-operator
   labels:
-    name: etcd-restore-operator
+    app: etcd-restore-operator
+  name: etcd-restore-operator
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: etcd-backup-operator
   template:
     metadata:
       labels:
-        name: etcd-restore-operator
+        app: etcd-restore-operator
     spec:
       containers:
       - name: etcd-restore-operator
-        image: quay.io/coreos/etcd-operator:v0.9.4
+        image: quay.io/on2itsecurity/etcd-operator:latest
         command:
         - etcd-restore-operator
         env:

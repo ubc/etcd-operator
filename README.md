@@ -35,14 +35,14 @@ See the [Resources and Labels](./doc/user/resource_labels.md) doc for an overvie
 
 ## Requirements
 
-- Kubernetes 1.8+
+- Kubernetes 1.19+
 - etcd 3.2.13+
 
 ## Demo
 
 ## Getting started
 
-![etcd Operator demo](https://raw.githubusercontent.com/coreos/etcd-operator/master/doc/gif/demo.gif)
+![etcd Operator demo](https://raw.githubusercontent.com/on2itsecurity/etcd-operator/main/doc/gif/demo.gif)
 
 ### Deploy etcd operator
 

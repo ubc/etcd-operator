@@ -96,8 +96,8 @@ func (s SortableBackupPaths) Less(i, j int) bool {
 	irstr := string(irmatches[len(irmatches)-1])
 	jrstr := string(jrmatches[len(jrmatches)-1])
 
-	ir, _ := strconv.ParseInt(irstr[2:len(irstr)], 10, 64)
-	jr, _ := strconv.ParseInt(jrstr[2:len(jrstr)], 10, 64)
+	ir, _ := strconv.ParseInt(irstr[2:], 10, 64)
+	jr, _ := strconv.ParseInt(jrstr[2:], 10, 64)
 
 	return ir < jr
 }
