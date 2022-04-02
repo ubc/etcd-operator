@@ -35,7 +35,7 @@ import (
 	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
 	"github.com/on2itsecurity/etcd-operator/test/e2e/framework"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
@@ -70,7 +70,7 @@ func TestBackupAndRestore(t *testing.T) {
 	c := e2eutil.NewCluster("", 3)
 	c.Name = clusterName
 	e2eutil.ClusterCRWithTLS(c, memberPeerTLSSecret, memberClientTLSSecret, operatorClientTLSSecret)
-	testEtcd, err := e2eutil.CreateCluster(t, f.CRClient, f.Namespace, c)
+	testEtcd, err := e2eutil.CreateCluster(t, context.Background(), f.CRClient, f.Namespace, c)
 	defer func() {
 		if err := e2eutil.DeleteCluster(t, context.Background(), f.CRClient, f.KubeClient, testEtcd); err != nil {
 			t.Fatal(err)

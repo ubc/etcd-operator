@@ -31,7 +31,7 @@ import (
 	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
 
 	"github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -98,7 +98,7 @@ func teardown(ctx context.Context) error {
 		return nil
 	}
 
-	err := Global.deleteOperatorCompletely(ctx,"etcd-operator")
+	err := Global.deleteOperatorCompletely(ctx, "etcd-operator")
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
 					},
 				},
 				ReadinessProbe: &v1.Probe{
-					Handler: v1.Handler{
+					ProbeHandler: v1.ProbeHandler{
 						HTTPGet: &v1.HTTPGetAction{
 							Path: probe.HTTPReadyzEndpoint,
 							Port: intstr.IntOrString{Type: intstr.Int, IntVal: 8080},

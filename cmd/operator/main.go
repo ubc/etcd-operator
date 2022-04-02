@@ -106,17 +106,15 @@ func main() {
 	http.Handle("/metrics", promhttp.Handler())
 	go http.ListenAndServe(listenAddr, nil)
 
-	rl, err := resourcelock.New(resourcelock.EndpointsResourceLock,
-		namespace,
-		"etcd-operator",
-		kubecli.CoreV1(),
-		kubecli.CoordinationV1(),
-		resourcelock.ResourceLockConfig{
-			Identity:      id,
-			EventRecorder: createRecorder(kubecli, name, namespace),
-		})
-	if err != nil {
-		logrus.Fatalf("error creating lock: %v", err)
+	rl := &resourcelock.LeaseLock{
+		LeaseMeta: metav1.ObjectMeta{
+			Name:      "etcd-operator",
+			Namespace: namespace,
+		},
+		Client: kubecli.CoordinationV1(),
+		LockConfig: resourcelock.ResourceLockConfig{
+			Identity: id,
+		},
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

@@ -18,7 +18,7 @@ import (
 	"errors"
 	"strings"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -73,7 +73,7 @@ type ClusterSpec struct {
 	// Repository is the name of the repository that hosts
 	// etcd container images. It should be direct clone of the repository in official
 	// release:
-	//   https://github.com/coreos/etcd/releases
+	//   https://github.com/etcd-io/etcd/releases
 	// That means, it should have exact same tags and the same meaning for the tags.
 	//
 	// By default, it is `quay.io/coreos/etcd`.
@@ -84,7 +84,7 @@ type ClusterSpec struct {
 	// equal to the expected version.
 	//
 	// The version must follow the [semver]( http://semver.org) format, for example "3.2.13".
-	// Only etcd released versions are supported: https://github.com/coreos/etcd/releases
+	// Only etcd released versions are supported: https://github.com/etcd-io/etcd/releases
 	//
 	// If version is not set, default is "v3.2.13".
 	Version string `json:"version,omitempty"`

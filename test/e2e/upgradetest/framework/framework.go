@@ -26,7 +26,7 @@ import (
 	"github.com/on2itsecurity/etcd-operator/test/e2e/e2eutil"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -105,7 +105,7 @@ func (f *Framework) CreateOperator(ctx context.Context, name string) error {
 							},
 						},
 						ReadinessProbe: &v1.Probe{
-							Handler: v1.Handler{
+							ProbeHandler: v1.ProbeHandler{
 								HTTPGet: &v1.HTTPGetAction{
 									Path: probe.HTTPReadyzEndpoint,
 									Port: intstr.IntOrString{Type: intstr.Int, IntVal: 8080},

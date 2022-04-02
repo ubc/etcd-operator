@@ -23,9 +23,9 @@ import (
 	"github.com/on2itsecurity/etcd-operator/pkg/util/etcdutil"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
-	"k8s.io/api/core/v1"
+	"go.etcd.io/etcd/api/v3/v3rpc/rpctypes"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
