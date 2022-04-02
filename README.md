@@ -42,7 +42,7 @@ See the [Resources and Labels](./doc/user/resource_labels.md) doc for an overvie
 
 ## Getting started
 
-![etcd Operator demo](https://raw.githubusercontent.com/coreos/etcd-operator/master/doc/gif/demo.gif)
+![etcd Operator demo](https://raw.githubusercontent.com/on2itsecurity/etcd-operator/main/doc/gif/demo.gif)
 
 ### Deploy etcd operator
 
