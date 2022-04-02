@@ -1,17 +1,22 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: etcd-backup-operator
   name: etcd-backup-operator
 spec:
+  selector:
+    matchLabels:
+      app: etcd-backup-operator
   replicas: 1
   template:
     metadata:
       labels:
-        name: etcd-backup-operator
+        app: etcd-backup-operator
     spec:
       containers:
       - name: etcd-backup-operator
-        image: quay.io/coreos/etcd-operator:v0.9.4
+        image: quay.io/on2itsecurity/etcd-operator:latest
         command:
         - etcd-backup-operator
         env:

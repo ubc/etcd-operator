@@ -33,6 +33,7 @@ var (
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
 
 // EtcdClusterList is a list of etcd clusters.
 type EtcdClusterList struct {
@@ -45,6 +46,7 @@ type EtcdClusterList struct {
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +k8s:openapi-gen=true
 
 type EtcdCluster struct {
 	metav1.TypeMeta   `json:",inline"`

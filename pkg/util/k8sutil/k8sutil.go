@@ -18,9 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -29,8 +27,8 @@ import (
 	"github.com/on2itsecurity/etcd-operator/pkg/util/retryutil"
 	"github.com/pborman/uuid"
 
-	appsv1beta1 "k8s.io/api/apps/v1beta1"
-	"k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -74,7 +72,6 @@ const (
 	defaultDNSTimeout = int64(0)
 )
 
-
 func GetEtcdVersion(pod *v1.Pod) string {
 	return pod.Annotations[etcdVersionAnnotationKey]
 }
@@ -103,9 +100,9 @@ func makeRestoreInitContainers(backupURL *url.URL, token, repo, version string, 
 	return []v1.Container{
 		{
 			Name:  "fetch-backup",
-			Image: "tutum/curl",
+			Image: "curlimages/curl",
 			Command: []string{
-				"/bin/bash", "-ec",
+				"/bin/ash", "-ec",
 				fmt.Sprintf(`
 httpcode=$(curl --write-out %%\{http_code\} --silent --output %[1]s %[2]s)
 if [[ "$httpcode" != "200" ]]; then
@@ -270,9 +267,9 @@ func AddEtcdVolumeToPod(pod *v1.Pod, pvc *v1.PersistentVolumeClaim, tmpfs bool) 
 		vol.VolumeSource = v1.VolumeSource{
 			PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{ClaimName: pvc.Name},
 		}
-               // Addresses case C from https://github.com/on2itsecurity/etcd-operator/blob/master/doc/design/persistent_volumes_etcd_data.md
-               // When PVC is used, make the pod auto recover in case of failure
-               pod.Spec.RestartPolicy = v1.RestartPolicyAlways
+		// Addresses case C from https://github.com/on2itsecurity/etcd-operator/blob/master/doc/design/persistent_volumes_etcd_data.md
+		// When PVC is used, make the pod auto recover in case of failure
+		pod.Spec.RestartPolicy = v1.RestartPolicyAlways
 	} else {
 		vol.VolumeSource = v1.VolumeSource{EmptyDir: &v1.EmptyDirVolumeSource{}}
 		if tmpfs {
@@ -477,18 +474,6 @@ func MustNewKubeClient() kubernetes.Interface {
 }
 
 func InClusterConfig() (*rest.Config, error) {
-	// Work around https://github.com/kubernetes/kubernetes/issues/40973
-	// See https://github.com/on2itsecurity/etcd-operator/issues/731#issuecomment-283804819
-	if len(os.Getenv("KUBERNETES_SERVICE_HOST")) == 0 {
-		addrs, err := net.LookupHost("kubernetes.default.svc")
-		if err != nil {
-			panic(err)
-		}
-		os.Setenv("KUBERNETES_SERVICE_HOST", addrs[0])
-	}
-	if len(os.Getenv("KUBERNETES_SERVICE_PORT")) == 0 {
-		os.Setenv("KUBERNETES_SERVICE_PORT", "443")
-	}
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -530,18 +515,18 @@ func CreatePatch(o, n, datastruct interface{}) ([]byte, error) {
 	return strategicpatch.CreateTwoWayMergePatch(oldData, newData, datastruct)
 }
 
-func PatchDeployment(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, updateFunc func(*appsv1beta1.Deployment)) error {
-	od, err := kubecli.AppsV1beta1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
+func PatchDeployment(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, updateFunc func(*appsv1.Deployment)) error {
+	od, err := kubecli.AppsV1().Deployments(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	nd := od.DeepCopy()
 	updateFunc(nd)
-	patchData, err := CreatePatch(od, nd, appsv1beta1.Deployment{})
+	patchData, err := CreatePatch(od, nd, appsv1.Deployment{})
 	if err != nil {
 		return err
 	}
-	_, err = kubecli.AppsV1beta1().Deployments(namespace).Patch(ctx, name, types.StrategicMergePatchType, patchData, metav1.PatchOptions{})
+	_, err = kubecli.AppsV1().Deployments(namespace).Patch(ctx, name, types.StrategicMergePatchType, patchData, metav1.PatchOptions{})
 	return err
 }
 
