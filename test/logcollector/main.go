@@ -75,6 +75,7 @@ func main() {
 						err = wait.ErrWaitTimeout
 					}
 					logrus.Errorf("failed to reach Running for pod (%s): %v", pod.Name, err)
+					close(stopCh)
 					return
 				}
 				pod = ev.Object.(*v1.Pod)
@@ -109,7 +110,7 @@ func main() {
 				return
 			}
 			// If e2e test pod runs to completion, then stops this program.
-			if pod.Status.Phase == v1.PodSucceeded || pod.Status.Phase == v1.PodFailed || pod.DeletionTimestamp != nil {
+			if pod.Status.Phase == v1.PodSucceeded || pod.Status.Phase == v1.PodFailed || pod.Status.Phase == v1.PodUnknown || pod.DeletionTimestamp != nil {
 				close(stopCh)
 			}
 		},
