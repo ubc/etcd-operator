@@ -23,6 +23,7 @@ import (
 	"runtime"
 	"time"
 
+	_ "github.com/emadolsky/automaxprocs/maxprocs"
 	controller "github.com/on2itsecurity/etcd-operator/pkg/controller/backup-operator"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
