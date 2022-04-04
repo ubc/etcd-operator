@@ -1,29 +1,28 @@
-FROM golang:1.18 AS builder
+FROM golang:1.18-alpine3.15 AS build-base
+# Install SSL ca certificates.
+# Ca-certificates is required to call HTTPS endpoints.
+RUN apk update && apk add --no-cache ca-certificates git gcc musl-dev
 WORKDIR /go/src/github.com/on2itsecurity/etcd-operator
-
-ARG VERSION=dev
-ARG REVISION=dev
-ARG CREATED=dev
-
-COPY vendor /go/src/
 COPY cmd cmd
 COPY pkg pkg
 COPY version version
+COPY go.* .
+RUN go mod vendor
 
-# Produce a static / reproducible build
-ENV CGO_ENABLED=0
+FROM build-base AS release-builder
+ARG REVISION=dev
+
+ENV CGO_ENABLED=1
 ENV GOOS=linux
-ENV GOARCH=amd64
-RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-operator github.com/on2itsecurity/etcd-operator/cmd/operator
-RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-backup-operator github.com/on2itsecurity/etcd-operator/cmd/backup-operator
-RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /usr/local/bin/etcd-restore-operator github.com/on2itsecurity/etcd-operator/cmd/restore-operator
+RUN mkdir -p /rootfs/usr/local/bin
+RUN mkdir -m 1777 /rootfs/tmp
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /rootfs/usr/local/bin/etcd-operator github.com/on2itsecurity/etcd-operator/cmd/operator
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /rootfs/usr/local/bin/etcd-backup-operator github.com/on2itsecurity/etcd-operator/cmd/backup-operator
+RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version.GitSHA=$REVISION'" -o /rootfs/usr/local/bin/etcd-restore-operator github.com/on2itsecurity/etcd-operator/cmd/restore-operator
+# ldd will sort out all need libraries, we output only the library path, create directories in /rootfs, and copy the libraries to /rootfs
+RUN ldd /rootfs/usr/local/bin/*-operator | grep "=> /" | awk '{print $3}' | xargs -i sh -c 'mkdir -p $(dirname "/rootfs{}"); cp -a "{}" "/rootfs{}"'
 
 FROM alpine AS env-builder
-
-# Install SSL ca certificates.
-# Ca-certificates is required to call HTTPS endpoints.
-RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
-
 ENV USER=etcd-operator
 ENV UID=1000
 RUN adduser \
@@ -35,19 +34,35 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-# Use a distroless base image, we don't need anything else as we compiled statically
+
+FROM build-base AS env-test
+ARG KUBERNETES=v1.23.5
+
+ADD https://storage.googleapis.com/kubernetes-release/release/$KUBERNETES/bin/linux/amd64/kubectl /bin/
+RUN chmod +x /bin/kubectl
+
+COPY test test
+RUN go get -v -t -d ./test/...
+RUN go mod vendor
+RUN go test ./test/e2e/ -c -o /bin/etcd-operator-e2e --race
+RUN go test ./test/e2e/e2eslow -c -o /bin/etcd-operator-e2eslow --race
+RUN go test ./test/e2e/upgradetest/  -c -o /bin/etcd-operator-upgradetest --race
+
+FROM alpine:3.15 as test-e2e
+RUN apk add --no-cache bash
+COPY hack hack
+COPY --from=env-test /bin/etcd-operator-* /bin
+COPY --from=env-test /bin/kubectl /bin
+
+FROM build-base as go-test
+RUN go test github.com/on2itsecurity/etcd-operator/pkg/...
+
 FROM scratch
-
 # Setup environment with certificates and user
-COPY --from=env-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=env-builder /etc/passwd /etc/passwd
-COPY --from=env-builder /etc/group /etc/group
-
-COPY --from=builder /usr/local/bin/etcd-operator /usr/local/bin/etcd-operator
-COPY --from=builder /usr/local/bin/etcd-backup-operator /usr/local/bin/etcd-backup-operator
-COPY --from=builder /usr/local/bin/etcd-restore-operator /usr/local/bin/etcd-restore-operator
-
-COPY --from=builder /tmp /tmp
+COPY --from=build-base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=env-builder /etc/passwd /etc/group /etc/
+# Copy libraries and compiled binaries
+COPY --from=release-builder /rootfs /
 
 USER etcd-operator:etcd-operator
 

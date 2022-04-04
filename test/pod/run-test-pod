@@ -23,33 +23,22 @@ else
     echo "RBAC setup fail! ==="
     exit 1
 fi
-
+go build -o logcollector test/logcollector/main.go
 kubectl -n ${TEST_NAMESPACE} create -f ${TEST_POD_SPEC}
 
-PHASE_RUNNING="Running"
-PHASE_SUCCEEDED="Succeeded"
-RETRY_INTERVAL=5
-
 # Wait until pod is running or timeout
-echo "Waiting for test-pod to start runnning"
-TIMEOUT=180
-ELAPSED=0
-POD_PHASE=""
-until [ "${POD_PHASE}" == "${PHASE_RUNNING}" ]
-do
-    if [ "${ELAPSED}" -ge "${TIMEOUT}" ]; then
-        echo "Timeout waiting for test-pod ${POD_NAME} to become running"
-        echo "=============="
-        kubectl -n ${TEST_NAMESPACE} logs ${POD_NAME}
-        echo "=============="
-        kubectl -n ${TEST_NAMESPACE} describe pod ${POD_NAME}
-        echo "=============="
-        exit 1
-    fi
-    sleep ${RETRY_INTERVAL}
-    ELAPSED=$(( $ELAPSED + $RETRY_INTERVAL ))
-    POD_PHASE=$(kubectl -n ${TEST_NAMESPACE} get pod ${POD_NAME} -o jsonpath='{.status.phase}')
-done
+echo "Waiting for test-pod to start running"
+if kubectl -n ${TEST_NAMESPACE} wait --timeout=180s --for=condition=ContainersReady pod ${POD_NAME}; then
+   echo "Pod ${POD_NAME} is running"
+else
+    echo "Timeout waiting for test-pod ${POD_NAME} to become running"
+    echo "=============="
+    kubectl -n ${TEST_NAMESPACE} logs ${POD_NAME}
+    echo "=============="
+    kubectl -n ${TEST_NAMESPACE} describe pod ${POD_NAME}
+    echo "=============="
+    exit 1
+fi
 
 # Print out and save logs to a file until the pod stops running
 echo "collecting logs =========="
@@ -58,8 +47,10 @@ DOCKER_REPO_ROOT="/go/src/github.com/on2itsecurity/etcd-operator"
 mkdir -p _output/logs/
 cp $KUBECONFIG ./kubeconfig
 
-go run test/logcollector/main.go --kubeconfig=$KUBECONFIG --e2e-podname=${POD_NAME} \
+./logcollector --kubeconfig=$KUBECONFIG --e2e-podname=${POD_NAME} \
     --namespace=${TEST_NAMESPACE} --logs-dir="_output/logs/"
+
+PHASE_SUCCEEDED="Succeeded"
 
 # Check for pod success or failure
 POD_PHASE=$(kubectl -n ${TEST_NAMESPACE} get pod ${POD_NAME} -o jsonpath='{.status.phase}')
