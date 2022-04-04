@@ -77,6 +77,17 @@ spec:
         memory: 100Mi
 ```
 
+## Create etcd pods with priority class.
+
+etcd members could be configured via env: https://coreos.com/etcd/docs/latest/op-guide/configuration.html
+
+```yaml
+spec:
+  size: 3
+  pod:
+    priorityClassName: high-priority
+```
+
 ## Custom etcd configuration
 
 etcd members could be configured via env: https://coreos.com/etcd/docs/latest/op-guide/configuration.html
