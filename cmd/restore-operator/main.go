@@ -22,11 +22,11 @@ import (
 	"runtime"
 	"time"
 
+	_ "github.com/emadolsky/automaxprocs/maxprocs"
 	controller "github.com/on2itsecurity/etcd-operator/pkg/controller/restore-operator"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/constants"
 	"github.com/on2itsecurity/etcd-operator/pkg/util/k8sutil"
 	version "github.com/on2itsecurity/etcd-operator/version"
-
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/leaderelection"

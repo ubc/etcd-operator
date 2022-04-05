@@ -77,6 +77,26 @@ spec:
         memory: 100Mi
 ```
 
+## Create etcd pods with priority class
+
+
+```yaml
+spec:
+  size: 3
+  pod:
+    priorityClassName: high-priority
+```
+
+## Create etcd pods protected against kubernetes disruptions by maintaining a pod disruption budget
+
+
+```yaml
+spec:
+  size: 3
+  podDisruptionBudget: true
+```
+
+
 ## Custom etcd configuration
 
 etcd members could be configured via env: https://coreos.com/etcd/docs/latest/op-guide/configuration.html

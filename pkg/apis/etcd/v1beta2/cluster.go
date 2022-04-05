@@ -102,6 +102,9 @@ type ClusterSpec struct {
 	// Service defines the policy to create etcd services
 	Service *ServicePolicy `json:"service,omitempty"`
 
+	// PodDisruptionBudget creates and maintains the policy to protect the etcd cluster from disruptive kubernetes actions.
+	PodDisruptionBudget bool `json:"podDisruptionBudget,omitempty"`
+
 	// etcd cluster TLS configuration
 	TLS *TLSPolicy `json:"TLS,omitempty"`
 }
@@ -130,6 +133,9 @@ type PodPolicy struct {
 
 	// Tolerations specifies the pod's tolerations.
 	Tolerations []v1.Toleration `json:"tolerations,omitempty"`
+
+	// PriorityClassName allows to set a predefined priority class to the pods.
+	PriorityClassName string `json:"priorityClassName,omitempty"`
 
 	// List of environment variables to set in the etcd container.
 	// This is used to configure etcd process. etcd cluster cannot be created, when

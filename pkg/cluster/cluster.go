@@ -181,6 +181,7 @@ func (c *Cluster) prepareSeedMember(ctx context.Context) error {
 	}
 
 	c.status.Size = 1
+	c.updatePodDisruptionBudget(ctx)
 	return nil
 }
 
@@ -421,7 +422,7 @@ func (c *Cluster) pollPods(ctx context.Context) (running, pending []*v1.Pod, err
 	for i := range podList.Items {
 		pod := &podList.Items[i]
 		// Avoid polling deleted pods. k8s issue where deleted pods would sometimes show the status Pending
-		// See https://github.com/on2itsecurity/etcd-operator/issues/1693
+		// See https://github.com/coreos/etcd-operator/issues/1693
 		if pod.DeletionTimestamp != nil {
 			continue
 		}

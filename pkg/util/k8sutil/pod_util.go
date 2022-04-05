@@ -107,6 +107,10 @@ func applyPodPolicy(clusterName string, pod *v1.Pod, policy *api.PodPolicy) {
 		pod.Spec.Tolerations = policy.Tolerations
 	}
 
+	if len(policy.PriorityClassName) != 0 {
+		pod.Spec.PriorityClassName = policy.PriorityClassName
+	}
+
 	mergeLabels(pod.Labels, policy.Labels)
 
 	for i := range pod.Spec.Containers {

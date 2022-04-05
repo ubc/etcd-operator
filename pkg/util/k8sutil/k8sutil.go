@@ -29,6 +29,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -260,6 +261,25 @@ func newEtcdServiceManifest(svcName, clusterName, clusterIP string, ports []v1.S
 	return svc
 }
 
+func newEtcdPodDisruptionBudgetManifest(pdbName, clusterName string, minAvailable *intstr.IntOrString) *policyv1beta1.PodDisruptionBudget {
+	labels := LabelsForCluster(clusterName)
+
+	pdb := &policyv1beta1.PodDisruptionBudget{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   pdbName,
+			Labels: labels,
+		},
+		Spec: policyv1beta1.PodDisruptionBudgetSpec{
+			MinAvailable: minAvailable,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
+		},
+	}
+
+	return pdb
+}
+
 // AddEtcdVolumeToPod abstract the process of appending volume spec to pod spec
 func AddEtcdVolumeToPod(pod *v1.Pod, pvc *v1.PersistentVolumeClaim, tmpfs bool) {
 	vol := v1.Volume{Name: etcdVolumeName}
@@ -439,7 +459,7 @@ func newEtcdPod(ctx context.Context, kubecli kubernetes.Interface, m *etcdutil.M
 			RestartPolicy: v1.RestartPolicyNever,
 			Volumes:       volumes,
 			// DNS A record: `[m.Name].[clusterName].Namespace.svc`
-			// For example, etcd-795649v9kq in default namesapce will have DNS name
+			// For example, etcd-795649v9kq in default namespace will have DNS name
 			// `etcd-795649v9kq.etcd.default.svc`.
 			Hostname:                     m.Name,
 			Subdomain:                    clusterName,
@@ -528,6 +548,27 @@ func PatchDeployment(ctx context.Context, kubecli kubernetes.Interface, namespac
 	}
 	_, err = kubecli.AppsV1().Deployments(namespace).Patch(ctx, name, types.StrategicMergePatchType, patchData, metav1.PatchOptions{})
 	return err
+}
+
+func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, minAvailable int, owner metav1.OwnerReference) error {
+	pdb := newEtcdPodDisruptionBudgetManifest(name, name, &intstr.IntOrString{IntVal: int32(minAvailable)})
+
+	addOwnerRefToObject(pdb.GetObjectMeta(), owner)
+
+	od, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Get(ctx, name, metav1.GetOptions{})
+	if apierrors.IsNotFound(err) {
+		_, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Create(ctx, pdb, metav1.CreateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	pdb.Status = od.Status
+	pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion
+	_, err = kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Update(ctx, pdb, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func CascadeDeleteOptions(gracePeriodSeconds int64) *metav1.DeleteOptions {
