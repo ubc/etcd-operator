@@ -181,6 +181,7 @@ func (c *Cluster) prepareSeedMember(ctx context.Context) error {
 	}
 
 	c.status.Size = 1
+	c.updatePodDisruptionBudget(ctx)
 	return nil
 }
 

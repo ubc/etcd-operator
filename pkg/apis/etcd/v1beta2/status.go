@@ -51,6 +51,9 @@ type ClusterStatus struct {
 	// Size is the current size of the cluster
 	Size int `json:"size"`
 
+	// MinAvailable is the amount of pods that cannot be disrupted before we get out of quorum
+	MinAvailable int `json:"minAvailable"`
+
 	// ServiceName is the LB service for accessing etcd nodes.
 	ServiceName string `json:"serviceName,omitempty"`
 

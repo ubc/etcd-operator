@@ -102,6 +102,9 @@ type ClusterSpec struct {
 	// Service defines the policy to create etcd services
 	Service *ServicePolicy `json:"service,omitempty"`
 
+	// PodDisruptionBudget creates and maintains the policy to protect the etcd cluster from disruptive kubernetes actions.
+	PodDisruptionBudget bool `json:"podDisruptionBudget,omitempty"`
+
 	// etcd cluster TLS configuration
 	TLS *TLSPolicy `json:"TLS,omitempty"`
 }
