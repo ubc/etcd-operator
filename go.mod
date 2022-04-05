@@ -7,7 +7,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v63.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.25
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
-	github.com/aws/aws-sdk-go v1.43.31
+	github.com/aws/aws-sdk-go v1.43.32
 	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
