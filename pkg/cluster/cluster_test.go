@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"context"
 	"testing"
 
 	api "github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
@@ -48,7 +49,7 @@ func TestUpdateEventUpdateLocalClusterObj(t *testing.T) {
 		cluster: newObj,
 	}
 
-	err := c.handleUpdateEvent(e)
+	err := c.handleUpdateEvent(context.Background(), e)
 	if err != nil {
 		t.Fatal(err)
 	}

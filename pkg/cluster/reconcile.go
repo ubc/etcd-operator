@@ -41,8 +41,6 @@ func (c *Cluster) reconcile(ctx context.Context, pods []*v1.Pod) error {
 
 	defer func() {
 		c.status.Size = c.members.Size()
-		c.updatePodDisruptionBudget(ctx)
-
 	}()
 
 	sp := c.cluster.Spec
