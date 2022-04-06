@@ -181,7 +181,6 @@ func (c *Cluster) prepareSeedMember(ctx context.Context) error {
 	}
 
 	c.status.Size = 1
-	c.updatePodDisruptionBudget(ctx)
 	return nil
 }
 
@@ -208,6 +207,8 @@ func (c *Cluster) run(ctx context.Context) {
 	c.status.ServiceName = k8sutil.ClientServiceName(c.cluster.Name, c.cluster.Spec.Service)
 	c.status.ClientPort = k8sutil.EtcdClientPort
 
+	c.updatePodDisruptionBudget(ctx)
+
 	c.status.SetPhase(api.ClusterPhaseRunning)
 	if err := c.updateCRStatus(ctx); err != nil {
 		c.logger.Warningf("update initial CR status failed: %v", err)
@@ -222,7 +223,7 @@ func (c *Cluster) run(ctx context.Context) {
 		case event := <-c.eventCh:
 			switch event.typ {
 			case eventModifyCluster:
-				err := c.handleUpdateEvent(event)
+				err := c.handleUpdateEvent(ctx, event)
 				if err != nil {
 					c.logger.Errorf("handle update event failed: %v", err)
 					c.status.SetReason(err.Error())
@@ -297,7 +298,7 @@ func (c *Cluster) run(ctx context.Context) {
 	}
 }
 
-func (c *Cluster) handleUpdateEvent(event *clusterEvent) error {
+func (c *Cluster) handleUpdateEvent(ctx context.Context, event *clusterEvent) error {
 	oldSpec := c.cluster.Spec.DeepCopy()
 	c.cluster = event.cluster
 
@@ -311,6 +312,7 @@ func (c *Cluster) handleUpdateEvent(event *clusterEvent) error {
 	// TODO: we can't handle another upgrade while an upgrade is in progress
 
 	c.logSpecUpdate(*oldSpec, event.cluster.Spec)
+	c.updatePodDisruptionBudget(ctx)
 	return nil
 }
 

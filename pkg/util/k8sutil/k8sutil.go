@@ -550,7 +550,7 @@ func PatchDeployment(ctx context.Context, kubecli kubernetes.Interface, namespac
 	return err
 }
 
-func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, minAvailable int, owner metav1.OwnerReference) error {
+func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, minAvailable int, owner metav1.OwnerReference, retryOptimisticLockingUpdate bool) error {
 	pdb := newEtcdPodDisruptionBudgetManifest(name, name, &intstr.IntOrString{IntVal: int32(minAvailable)})
 
 	addOwnerRefToObject(pdb.GetObjectMeta(), owner)
@@ -563,8 +563,11 @@ func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.I
 		}
 	}
 	pdb.Status = od.Status
-	pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion
+	pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion // Optimistic locking
 	_, err = kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Update(ctx, pdb, metav1.UpdateOptions{})
+	if apierrors.IsConflict(err) && retryOptimisticLockingUpdate {
+		return UpdateOrCreatePodDisruptionBudget(ctx, kubecli, namespace, name, minAvailable, owner, false)
+	}
 	if err != nil {
 		return err
 	}

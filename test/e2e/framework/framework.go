@@ -33,6 +33,7 @@ import (
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
@@ -123,6 +124,9 @@ func (f *Framework) setup(ctx context.Context) error {
 }
 
 func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
+	readOnlyRootFilesystem := true
+	user := int64(1000)
+	runAsNonRoot := true
 	pod := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "etcd-operator",
@@ -144,6 +148,16 @@ func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
 						ValueFrom: &v1.EnvVarSource{FieldRef: &v1.ObjectFieldSelector{FieldPath: "metadata.name"}},
 					},
 				},
+				Resources: v1.ResourceRequirements{
+					Limits: v1.ResourceList{
+						v1.ResourceCPU:    *resource.NewMilliQuantity(200, resource.DecimalSI),
+						v1.ResourceMemory: *resource.NewQuantity(80*(1024*1024), resource.DecimalSI),
+					},
+					Requests: v1.ResourceList{
+						v1.ResourceCPU:    *resource.NewMilliQuantity(50, resource.DecimalSI),
+						v1.ResourceMemory: *resource.NewQuantity(50*(1024*1024), resource.DecimalSI),
+					},
+				},
 				ReadinessProbe: &v1.Probe{
 					ProbeHandler: v1.ProbeHandler{
 						HTTPGet: &v1.HTTPGetAction{
@@ -154,6 +168,22 @@ func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
 					InitialDelaySeconds: 3,
 					PeriodSeconds:       3,
 					FailureThreshold:    3,
+				},
+				SecurityContext: &v1.SecurityContext{
+					Capabilities: &v1.Capabilities{
+						Drop: []v1.Capability{
+							"ALL",
+						},
+					},
+					ReadOnlyRootFilesystem: &readOnlyRootFilesystem,
+					RunAsUser:              &user,
+					RunAsNonRoot:           &runAsNonRoot,
+				},
+				VolumeMounts: []v1.VolumeMount{
+					{
+						Name:      "tmp",
+						MountPath: "/tmp",
+					},
 				},
 			}, {
 				Name:            etcdBackupOperatorName,
@@ -186,7 +216,14 @@ func (f *Framework) SetupEtcdOperator(ctx context.Context) error {
 					},
 				},
 			}},
-			RestartPolicy: v1.RestartPolicyNever,
+			RestartPolicy:      v1.RestartPolicyNever,
+			ServiceAccountName: "etcd-operator",
+			Volumes: []v1.Volume{
+				{
+					Name:         "tmp",
+					VolumeSource: v1.VolumeSource{EmptyDir: &v1.EmptyDirVolumeSource{}},
+				},
+			},
 		},
 	}
 

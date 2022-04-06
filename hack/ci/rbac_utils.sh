@@ -10,6 +10,9 @@ function rbac_cleanup {
 }
 
 function rbac_setup() {
+    # Create Service Account
+    kubectl apply -f example/serviceaccount.yaml -n ${TEST_NAMESPACE}
+
     # Create ClusterRole
     sed -e "s/<ROLE_NAME>/${ROLE_NAME}/g" example/rbac/cluster-role-template.yaml | kubectl apply -f -
 

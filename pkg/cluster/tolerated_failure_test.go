@@ -47,4 +47,16 @@ func TestCalculateMinAvailable(t *testing.T) {
 	if minAvailable != expected {
 		t.Errorf("expect minAvailable=%d, get=%d", expected, minAvailable)
 	}
+	c = &Cluster{
+		cluster: &v1beta2.EtcdCluster{
+			Spec: v1beta2.ClusterSpec{
+				Size: 1,
+			},
+		},
+	}
+	minAvailable = c.calculateMinAvailable(context.Background())
+	expected = 1
+	if minAvailable != expected {
+		t.Errorf("expect minAvailable=%d, get=%d", expected, minAvailable)
+	}
 }

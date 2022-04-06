@@ -1,30 +1,61 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  labels:
+    app: etcd-operator
   name: etcd-operator
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: etcd-operator
-  replicas: 1
   template:
     metadata:
       labels:
         app: etcd-operator
     spec:
       containers:
-      - name: etcd-operator
-        image: quay.io/coreos/etcd-operator:v0.9.4
-        command:
-        - etcd-operator
-        # Uncomment to act for resources in all namespaces. More information in doc/user/clusterwide.md
-        #- -cluster-wide
-        env:
-        - name: MY_POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
+        - name: etcd-operator
+          image: ghcr.io/on2itsecurity/etcd-operator:latest
+          command:
+          - etcd-operator
+          # Uncomment to act for resources in all namespaces. More information in doc/user/clusterwide.md
+          #- -cluster-wide
+          env:
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            limits:
+              cpu: 200m
+              memory: 80Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          securityContext:
+            capabilities:
+                drop:
+                  - ALL
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsNonRoot: true
+          volumeMounts:
+            - name: "tmp"
+              mountPath: "/tmp"
+      serviceAccountName: etcd-operator
+      volumes:
+        - name: "tmp"
+          emptyDir: {}
