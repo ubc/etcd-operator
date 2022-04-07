@@ -1,3 +1,17 @@
+## [1.2.0](https://github.com/on2itsecurity/etcd-operator/compare/v1.1.1...v1.2.0) (2022-04-07)
+
+### Bug Fixes
+* ready check circular dependency with rolling deployment and leader election ([645c78d](https://github.com/on2itsecurity/etcd-operator/commit/645c78d26b0efbd3339a8a63b28ee0359ca52576))
+* Make etcd-operator use the right amount of threads in containers ([01d0dd6](https://github.com/on2itsecurity/etcd-operator/commit/01d0dd63c62609e6f8413d1f58f7d693dcd7ea4a))
+
+## Features
+* Kubernetes 1.24 API / ETCD 3.5.2 API ([c1424cb](https://github.com/on2itsecurity/etcd-operator/commit/c1424cb90bd25ec822e239b730f2349bd751df8b))
+* Using PublishNotReadyAddresses for services ([e73da47](https://github.com/on2itsecurity/etcd-operator/commit/e73da475e09d1c1546b9dd2e49a19b8dc7c6c9c0))
+* Default to etcd 3.4.18 and official gcr.io/development/etcd-io ([c5807b3](https://github.com/on2itsecurity/etcd-operator/commit/c5807b3ef9b1820e087a8e3213e2ed8c75702936))
+* Build docker images for arm64 ([69d10e1](https://github.com/on2itsecurity/etcd-operator/commit/69d10e16f867f181830ef5f88970a320d050553a))
+* add priorityClassName support to etcd crd ([d4d528a](https://github.com/on2itsecurity/etcd-operator/commit/d4d528aa7707a851fa0960e555a6ac2753e6e859))
+* podDisruptionBudget creates and maintains the policy to protect the etcd cluster from disruptive kubernetes actions ([f378e39](https://github.com/on2itsecurity/etcd-operator/commit/f378e398dce7bc4546e8ade3c156c0d7d6e33850))
+
 ## [1.1.1](https://gitlab.com/cbws/tools/etcd-operator/compare/v1.1.0...v1.1.1) (2021-02-18)
 
 
