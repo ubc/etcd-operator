@@ -1,9 +1,9 @@
-name: Testing
+name: Dockerbase
 on:
   push:
 jobs:
-  go-unit-tests:
-    name: go-unit-tests
+  buildbase:
+    name: docker-base
     runs-on: ubuntu-latest
     steps:
       - 
@@ -21,8 +21,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          target: go-test
+          target: build-base
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max   
+          cache-to: type=gha
 

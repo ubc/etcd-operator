@@ -1,4 +1,5 @@
-FROM golang:1.18-alpine3.15 AS build-base
+ARG alpinever=3.15
+FROM golang:1.18-alpine$alpinever AS build-base
 # Install SSL ca certificates.
 # Ca-certificates is required to call HTTPS endpoints.
 RUN apk update && apk add --no-cache ca-certificates git gcc musl-dev
@@ -22,7 +23,7 @@ RUN go build --ldflags "-w -s -X 'github.com/on2itsecurity/etcd-operator/version
 # ldd will sort out all need libraries, we output only the library path, create directories in /rootfs, and copy the libraries to /rootfs
 RUN ldd /rootfs/usr/local/bin/*-operator | grep "=> /" | awk '{print $3}' | xargs -i sh -c 'mkdir -p $(dirname "/rootfs{}"); cp -a "{}" "/rootfs{}"'
 
-FROM alpine AS env-builder
+FROM alpine:$alpinever AS env-builder
 ENV USER=etcd-operator
 ENV UID=1000
 RUN adduser \
@@ -48,7 +49,7 @@ RUN go test ./test/e2e/ -c -o /bin/etcd-operator-e2e --race
 RUN go test ./test/e2e/e2eslow -c -o /bin/etcd-operator-e2eslow --race
 RUN go test ./test/e2e/upgradetest/  -c -o /bin/etcd-operator-upgradetest --race
 
-FROM alpine:3.15 as test-e2e
+FROM alpine:$alpinever as test-e2e
 RUN apk add --no-cache bash
 COPY hack hack
 COPY --from=env-test /bin/etcd-operator-* /bin
