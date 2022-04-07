@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: etcd-backup-operator
-        image: quay.io/on2itsecurity/etcd-operator:latest
+        image: ghcr.io/on2itsecurity/etcd-operator:v1.2.0
         command:
         - etcd-backup-operator
         env:
