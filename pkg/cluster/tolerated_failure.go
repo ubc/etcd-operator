@@ -22,24 +22,25 @@ import (
 )
 
 func (c *Cluster) updatePodDisruptionBudget(ctx context.Context) {
-	currentlyMinAvailable := c.calculateMinAvailable(ctx)
+	currentlyMinAvailable := c.calculateMinAvailable()
 
 	if c.status.MinAvailable != currentlyMinAvailable {
 		if c.cluster.Spec.PodDisruptionBudget {
+			c.logger.Infof("Updating disruption budget, amount of pods needed for a quorum changed from %d to %d", c.status.MinAvailable, currentlyMinAvailable)
+
 			err := k8sutil.UpdateOrCreatePodDisruptionBudget(ctx, c.config.KubeCli, c.cluster.Namespace, c.cluster.Name, currentlyMinAvailable, c.cluster.AsOwner(), true)
 			if err != nil {
 				c.logger.Errorf("failed to create/update pod disruption budget: %v", err)
 				return
 			}
+			c.status.MinAvailable = currentlyMinAvailable
 		}
-		c.logger.Infof("Amount of pods needed for a quorum changed from %d to %d", c.status.MinAvailable, currentlyMinAvailable)
-		c.status.MinAvailable = currentlyMinAvailable
 
 	}
 }
 
 // calculateMinAvailable return the amount of pods that cannot be disrupted before we get out of quorum.
-func (c *Cluster) calculateMinAvailable(ctx context.Context) int {
+func (c *Cluster) calculateMinAvailable() int {
 	targetSize := float64(c.cluster.Spec.Size)
 	halfOfTarget := targetSize / 2
 	quorum := math.Floor(halfOfTarget) + 1
