@@ -15,7 +15,6 @@
 package cluster
 
 import (
-	"context"
 	"testing"
 
 	"github.com/on2itsecurity/etcd-operator/pkg/apis/etcd/v1beta2"
@@ -29,7 +28,7 @@ func TestCalculateMinAvailable(t *testing.T) {
 			},
 		},
 	}
-	minAvailable := c.calculateMinAvailable(context.Background())
+	minAvailable := c.calculateMinAvailable()
 	expected := 4
 	if minAvailable != expected {
 		t.Errorf("expect minAvailable=%d, get=%d", expected, minAvailable)
@@ -42,7 +41,7 @@ func TestCalculateMinAvailable(t *testing.T) {
 			},
 		},
 	}
-	minAvailable = c.calculateMinAvailable(context.Background())
+	minAvailable = c.calculateMinAvailable()
 	expected = 2
 	if minAvailable != expected {
 		t.Errorf("expect minAvailable=%d, get=%d", expected, minAvailable)
@@ -54,7 +53,7 @@ func TestCalculateMinAvailable(t *testing.T) {
 			},
 		},
 	}
-	minAvailable = c.calculateMinAvailable(context.Background())
+	minAvailable = c.calculateMinAvailable()
 	expected = 1
 	if minAvailable != expected {
 		t.Errorf("expect minAvailable=%d, get=%d", expected, minAvailable)
