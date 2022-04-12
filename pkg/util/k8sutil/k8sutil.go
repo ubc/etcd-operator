@@ -558,9 +558,7 @@ func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.I
 	od, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		_, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Create(ctx, pdb, metav1.CreateOptions{})
-		if err != nil {
-			return err
-		}
+		return err
 	}
 	pdb.Status = od.Status
 	pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion // Optimistic locking

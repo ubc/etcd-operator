@@ -1,6 +1,9 @@
 name: Testing E2E
 on:
   push:
+    branches:    
+      - main
+  pull_request:
 jobs:
   buildbase:
     name: docker-base
