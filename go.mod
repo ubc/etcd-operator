@@ -5,9 +5,9 @@ go 1.18
 require (
 	cloud.google.com/go/storage v1.22.0
 	github.com/Azure/azure-sdk-for-go v63.3.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.26
+	github.com/Azure/go-autorest/autorest v0.11.27
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible
-	github.com/aws/aws-sdk-go v1.43.39
+	github.com/aws/aws-sdk-go v1.43.44
 	github.com/emadolsky/automaxprocs v1.4.1-0.20220328130039-804bb317418d
 	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
@@ -18,16 +18,16 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.3
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306
-	google.golang.org/api v0.74.0
-	k8s.io/api v0.24.0-beta.0
-	k8s.io/apiextensions-apiserver v0.24.0-beta.0
-	k8s.io/apimachinery v0.24.0-beta.0
-	k8s.io/client-go v0.24.0-beta.0
+	google.golang.org/api v0.75.0
+	k8s.io/api v0.24.0-rc.0
+	k8s.io/apiextensions-apiserver v0.24.0-rc.0
+	k8s.io/apimachinery v0.24.0-rc.0
+	k8s.io/client-go v0.24.0-rc.0
 )
 
 require (
-	cloud.google.com/go v0.100.2 // indirect
-	cloud.google.com/go/compute v1.5.0 // indirect
+	cloud.google.com/go v0.101.0 // indirect
+	cloud.google.com/go/compute v1.6.1 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.18 // indirect
@@ -69,7 +69,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.33.0 // indirect
+	github.com/prometheus/common v0.34.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -78,20 +78,20 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
+	golang.org/x/net v0.0.0-20220421235706-1d1ef9303861 // indirect
+	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220407144326-9054f6ed7bac // indirect
+	google.golang.org/genproto v0.0.0-20220421151946-72621c1f0bd3 // indirect
 	google.golang.org/grpc v1.45.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	k8s.io/klog/v2 v2.60.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20220401212409-b28bf2818661 // indirect
+	k8s.io/kube-openapi v0.0.0-20220413171646-5e7f5fdc6da6 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
