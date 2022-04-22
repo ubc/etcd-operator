@@ -28,7 +28,7 @@ func (c *Cluster) updatePodDisruptionBudget(ctx context.Context) {
 		if c.cluster.Spec.PodDisruptionBudget {
 			c.logger.Infof("Updating disruption budget, amount of pods needed for a quorum changed from %d to %d", c.status.MinAvailable, currentlyMinAvailable)
 
-			err := k8sutil.UpdateOrCreatePodDisruptionBudget(ctx, c.config.KubeCli, c.cluster.Namespace, c.cluster.Name, currentlyMinAvailable, c.cluster.AsOwner(), true)
+			err := k8sutil.UpdateOrCreatePodDisruptionBudget(ctx, c.config.KubeCli, c.cluster.Namespace, c.cluster.Name, currentlyMinAvailable, c.cluster.AsOwner())
 			if err != nil {
 				c.logger.Errorf("failed to create/update pod disruption budget: %v", err)
 				return

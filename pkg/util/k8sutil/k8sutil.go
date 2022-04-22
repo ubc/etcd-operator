@@ -40,6 +40,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // for gcp auth
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/util/retry"
 )
 
 const (
@@ -550,26 +551,26 @@ func PatchDeployment(ctx context.Context, kubecli kubernetes.Interface, namespac
 	return err
 }
 
-func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, minAvailable int, owner metav1.OwnerReference, retryOptimisticLockingUpdate bool) error {
+func UpdateOrCreatePodDisruptionBudget(ctx context.Context, kubecli kubernetes.Interface, namespace, name string, minAvailable int, owner metav1.OwnerReference) error {
 	pdb := newEtcdPodDisruptionBudgetManifest(name, name, &intstr.IntOrString{IntVal: int32(minAvailable)})
-
 	addOwnerRefToObject(pdb.GetObjectMeta(), owner)
 
-	od, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Get(ctx, name, metav1.GetOptions{})
-	if apierrors.IsNotFound(err) {
-		_, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Create(ctx, pdb, metav1.CreateOptions{})
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		od, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Get(ctx, name, metav1.GetOptions{})
+		if IsKubernetesResourceNotFoundError(err) {
+			_, err := kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Create(ctx, pdb, metav1.CreateOptions{})
+			return err
+		}
+		if err != nil {
+			return err
+		}
+
+		pdb.Status = od.Status
+		pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion // Optimistic locking
+		_, err = kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Update(ctx, pdb, metav1.UpdateOptions{})
+
 		return err
-	}
-	pdb.Status = od.Status
-	pdb.ObjectMeta.ResourceVersion = od.ObjectMeta.ResourceVersion // Optimistic locking
-	_, err = kubecli.PolicyV1beta1().PodDisruptionBudgets(namespace).Update(ctx, pdb, metav1.UpdateOptions{})
-	if apierrors.IsConflict(err) && retryOptimisticLockingUpdate {
-		return UpdateOrCreatePodDisruptionBudget(ctx, kubecli, namespace, name, minAvailable, owner, false)
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	})
 }
 
 func CascadeDeleteOptions(gracePeriodSeconds int64) *metav1.DeleteOptions {
