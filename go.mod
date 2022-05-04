@@ -18,7 +18,7 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.4
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306
-	google.golang.org/api v0.77.0
+	google.golang.org/api v0.78.0
 	k8s.io/api v0.24.0-rc.1
 	k8s.io/apiextensions-apiserver v0.24.0-rc.1
 	k8s.io/apimachinery v0.24.0-rc.1
@@ -79,7 +79,7 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220427172511-eb4f295cb31f // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
+	golang.org/x/sys v0.0.0-20220502124256-b6088ccd6cba // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
