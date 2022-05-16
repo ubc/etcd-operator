@@ -44,10 +44,10 @@ kubectl delete clusterrolebinding etcd-operator
 
 ## Installation using Helm
 
-etcd operator is available as a [Helm chart][etcd-helm]. Follow the instructions on the chart to install etcd operator on clusters.
-[Alejandro Escobar][alejandroEsc] is the active maintainer.
+etcd operator is available as a [Helm chart][etcd-helm] for this fork. Follow the instructions on the chart to install etcd operator on clusters.
+[Phil Porada][pgporada] is the active maintainer.
 
 
 [rbac-rules]: rbac.md
-[etcd-helm]: https://github.com/kubernetes/charts/tree/master/stable/etcd-operator/
-[alejandroEsc]:https://github.com/alejandroEsc
+[etcd-helm]: https://github.com/pgporada/etcd-operator-helm-chart
+[pgporada]: https://github.com/pgporada
