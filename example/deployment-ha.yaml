@@ -28,7 +28,7 @@ spec:
               weight: 100
       containers:
         - name: etcd-operator
-          image: ghcr.io/on2itsecurity/etcd-operator:v1.2.0@sha256:f98c961e73416e77599ac20520917f60089329d4b06625da4097e510ecefb371
+          image: ghcr.io/on2itsecurity/etcd-operator:v1.2.1
           command:
           - etcd-operator
           # Uncomment to act for resources in all namespaces. More information in doc/user/clusterwide.md
