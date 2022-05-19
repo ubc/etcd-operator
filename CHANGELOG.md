@@ -1,3 +1,16 @@
+## [1.2.1](https://github.com/on2itsecurity/etcd-operator/compare/v1.2.0...v1.2.1) (2022-05-19)
+
+### Bug Fixes
+* try to update the podDisrusptionBudget after it was initially created ([8e66977](https://github.com/on2itsecurity/etcd-operator/commit/8e6697706e32255701c09c98678588af52bd740d))
+* remove last etcd 2.3.8 dependency ([37891d0](https://github.com/on2itsecurity/etcd-operator/commit/37891d0c3abeefd5d84a72428a65163ec0799508))
+
+
+### Features
+* retry with client-go native routine (backoff) ([c2fdf81](https://github.com/on2itsecurity/etcd-operator/commit/c2fdf8180e99e671e680b792a7d576ac2ec73c9d))
+* up Kubernetes api to 1.24.0 ([c259924](https://github.com/on2itsecurity/etcd-operator/commit/c25992439dc811a48934a5bd130767ab82261fc4))
+* up default ETCD to 3.5.4 ([e914d26](https://github.com/on2itsecurity/etcd-operator/commit/e914d2654702b104694adf54aacb48ec9b0b7b15))
+* test against kubernetes 1.24.0-rc1 ([2b9b4e7](https://github.com/on2itsecurity/etcd-operator/commit/2b9b4e7597971e7cceed3fa71de92ea675bd1b2e))
+
 ## [1.2.0](https://github.com/on2itsecurity/etcd-operator/compare/v1.1.1...v1.2.0) (2022-04-07)
 
 ### Bug Fixes
