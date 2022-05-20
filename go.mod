@@ -3,7 +3,7 @@ module github.com/on2itsecurity/etcd-operator
 go 1.18
 
 require (
-	cloud.google.com/go/storage v1.22.0
+	cloud.google.com/go/storage v1.22.1
 	github.com/Azure/azure-sdk-for-go v64.1.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.27
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.3+incompatible
@@ -84,7 +84,7 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3 // indirect
+	google.golang.org/genproto v0.0.0-20220518221133-4f43b3371335 // indirect
 	google.golang.org/grpc v1.46.2 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
