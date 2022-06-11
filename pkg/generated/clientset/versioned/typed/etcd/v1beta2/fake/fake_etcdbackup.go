@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The etcd-operator Authors
+Copyright 2022 The etcd-operator Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ func (c *FakeEtcdBackups) UpdateStatus(ctx context.Context, etcdBackup *v1beta2.
 // Delete takes name of the etcdBackup and deletes it. Returns an error if one occurs.
 func (c *FakeEtcdBackups) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(etcdbackupsResource, c.ns, name), &v1beta2.EtcdBackup{})
+		Invokes(testing.NewDeleteActionWithOptions(etcdbackupsResource, c.ns, name, opts), &v1beta2.EtcdBackup{})
 
 	return err
 }

@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The etcd-operator Authors
+Copyright 2022 The etcd-operator Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ func (c *FakeEtcdClusters) UpdateStatus(ctx context.Context, etcdCluster *v1beta
 // Delete takes name of the etcdCluster and deletes it. Returns an error if one occurs.
 func (c *FakeEtcdClusters) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(etcdclustersResource, c.ns, name), &v1beta2.EtcdCluster{})
+		Invokes(testing.NewDeleteActionWithOptions(etcdclustersResource, c.ns, name, opts), &v1beta2.EtcdCluster{})
 
 	return err
 }

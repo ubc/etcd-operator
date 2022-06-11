@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The etcd-operator Authors
+Copyright 2022 The etcd-operator Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,7 +74,10 @@ func (c *Clientset) Tracker() testing.ObjectTracker {
 	return c.tracker
 }
 
-var _ clientset.Interface = &Clientset{}
+var (
+	_ clientset.Interface = &Clientset{}
+	_ testing.FakeClient  = &Clientset{}
+)
 
 // EtcdV1beta2 retrieves the EtcdV1beta2Client
 func (c *Clientset) EtcdV1beta2() etcdv1beta2.EtcdV1beta2Interface {
