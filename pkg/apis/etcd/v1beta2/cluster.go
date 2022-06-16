@@ -51,8 +51,9 @@ type EtcdClusterList struct {
 type EtcdCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ClusterSpec   `json:"spec"`
-	Status            ClusterStatus `json:"status"`
+	Spec              ClusterSpec `json:"spec"`
+	// +optional
+	Status ClusterStatus `json:"status"`
 }
 
 func (c *EtcdCluster) AsOwner() metav1.OwnerReference {
@@ -79,6 +80,7 @@ type ClusterSpec struct {
 	// That means, it should have exact same tags and the same meaning for the tags.
 	//
 	// By default, it is `gcr.io/etcd-development/etcd`, etcd.io recognises `quay.io/coreos/etcd` as a "secondary" option, and could be used as well.
+	// +optional
 	Repository string `json:"repository,omitempty"`
 
 	// Version is the expected version of the etcd cluster.
@@ -172,6 +174,7 @@ type PodPolicy struct {
 	// ClusterDomain is the cluster domain to use for member URLs E.g.
 	// '.cluster.local'.
 	// The default is to not set a cluster domain explicitly.
+	// +optional
 	ClusterDomain string `json:"ClusterDomain"`
 
 	// Sets the 'emptyDir.medium' field for the etcd-data volume to "Memory".

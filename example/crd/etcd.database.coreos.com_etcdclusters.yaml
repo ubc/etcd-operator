@@ -1502,8 +1502,6 @@ spec:
                           type: string
                       type: object
                     type: array
-                required:
-                - ClusterDomain
                 type: object
               podDisruptionBudget:
                 description: PodDisruptionBudget creates and maintains the policy
@@ -1646,7 +1644,6 @@ spec:
             type: object
         required:
         - spec
-        - status
         type: object
     served: true
     storage: true
