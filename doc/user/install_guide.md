@@ -8,6 +8,14 @@ Set up basic [RBAC rules][rbac-rules] for etcd operator:
 $ example/rbac/create_role.sh
 ```
 
+## Set up service account
+
+Set up basic service account for etcd operator:
+
+```bash
+$ kubectl create -f example/serviceaccount.yaml
+```
+
 ## Install etcd operator
 
 Create a deployment for etcd operator:
@@ -36,6 +44,7 @@ Clean up etcd operator:
 
 ```bash
 kubectl delete -f example/deployment.yaml
+kubectl delete -f example/serviceaccount.yaml
 kubectl delete endpoints etcd-operator
 kubectl delete crd etcdclusters.etcd.database.coreos.com
 kubectl delete clusterrole etcd-operator
