@@ -39,7 +39,7 @@ jobs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v3
+      uses: docker/metadata-action@v4
       with:
        images: lthub/etcd-operator
        # generate Docker tags based on the following events/attributes
