@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	cloud.google.com/go/storage v1.6.0
-	github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
+	github.com/Azure/azure-sdk-for-go v67.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.18
 	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
@@ -13,6 +13,7 @@ require (
 	github.com/coreos/etcd v3.4.14+incompatible
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/dnaeon/go-vcr v1.1.0 // indirect
+	github.com/gofrs/uuid v4.3.0+incompatible // indirect
 	github.com/googleapis/gnostic v0.4.2 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.5 // indirect
